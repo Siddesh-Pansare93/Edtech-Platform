@@ -17,3 +17,6 @@ const enrollmentSchema  = new mongoose.Schema({
         enum : ["completed" , "inProgress"]
         }
 } , {timestamps : true })
+
+
+export const Enrollment = mongoose.model("Enrollment" , enrollmentSchema)
