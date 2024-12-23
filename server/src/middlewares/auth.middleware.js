@@ -5,7 +5,7 @@ import {User} from '../models/user.model.js'
 
 
 
-const verifyJwt = async(req , next)=>{
+const verifyJwt = async(req , res ,  next)=>{
    try {
      const token  =  req.cookies?.accessToken || req.headers("Authorization").split(" ")[1]
  
@@ -20,11 +20,12 @@ const verifyJwt = async(req , next)=>{
         throw new ApiError(400 , "Invalid Access Token")
      }
 
-     const user = User.findById(decodedToken?._id).select("-password -refreshToken")
+     const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
 
      if(!user){
         throw new ApiError(400 , "Invalid Token  : Not able to find user with token")
      }
+     
 
      req.user = user
      next()
@@ -32,3 +33,5 @@ const verifyJwt = async(req , next)=>{
     throw new ApiError(400 , `Unauthorized : ${error.message}`)
    }
 }
+
+export default verifyJwt
