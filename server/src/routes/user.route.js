@@ -17,9 +17,9 @@ router.route("/register").post(
     handleUserRegistration
 )
 
+router.route("/login").get(handleUserLogin)
 
 //Secure Routes
-router.route("/login").post(verifyJwt , handleUserLogin)
 router.route("/logout").post(verifyJwt , handleUserLogout)
 router.route("/update-profile").patch(verifyJwt , handleUpdateUserProfile)
 router.route("/change-password").patch(verifyJwt , handleChangePassword)
@@ -31,7 +31,6 @@ router.route("/change-password").patch(verifyJwt , handleChangePassword)
 // router.route("/delete-user").delete(handleDeleteUser)
 
 
-router.route("/login").get(handleUserLogin)
 
 
 
