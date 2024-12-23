@@ -11,5 +11,9 @@ const enrollmentSchema  = new mongoose.Schema({
     },
     progress : {
         type : Decimal
-    }
+    } , 
+    status : {
+        type : String ,
+        enum : ["completed" , "inProgress"]
+        }
 } , {timestamps : true })
