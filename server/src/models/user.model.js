@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-
+import logger from '../logger.js'
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -40,12 +40,11 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String,
-        required: true
     }
 }, { timestamps: true })
 
 
-userSchema.pre("save", async function (params) {
+userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
 
     this.password = await bcrypt.hash(this.password, 10)
@@ -67,19 +66,19 @@ userSchema.methods.generateAccessToken = async function () {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiry: process.env.ACCESS_TOKEN_EXPIRY,
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
         }
 
     )
 }
-userSchema.methods.generaterRefreshToken = async function () {
+userSchema.methods.generateRefreshToken = async function () {
     return jwt.sign(
         {
             _id: this._id,
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiry: process.env.REFRESH_TOKEN_EXPIRY,
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
         }
 
     )
