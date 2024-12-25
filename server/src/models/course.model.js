@@ -43,7 +43,7 @@ const courseSchema = new mongoose.Schema({
     ],
     isPublished: {
         type: Boolean,
-        required: false
+        default : false
     }
 }, { timestamps: true })
 
