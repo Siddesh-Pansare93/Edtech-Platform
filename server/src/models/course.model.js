@@ -6,7 +6,7 @@ const courseSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    bannerImage: {
+    thumbnail: {
         type: String,
         required: true
     },
@@ -14,10 +14,13 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    category: {
-        type: String,
-        required: true
-    },
+    preRequisites : [{
+        type: String
+    }],
+    curriculum  : [{
+        type : String , 
+        required : true
+    }] , 
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -40,9 +43,11 @@ const courseSchema = new mongoose.Schema({
     ],
     isPublished: {
         type: Boolean,
-        required: true
+        required: false
     }
 }, { timestamps: true })
 
 
-export default Course = mongoose.Model("Course", courseSchema)
+export const Course = mongoose.model("Course", courseSchema)
+
+
