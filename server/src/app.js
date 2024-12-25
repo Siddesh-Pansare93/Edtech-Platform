@@ -56,12 +56,14 @@ app.use(
   //Routes 
 
   import userRouter from './routes/user.route.js'
+  import courseRouter from "./routes/course.route.js"
 
 
 
 
 
   app.use("/api/v1/users" , userRouter)
+  app.use("/api/v1/course" , courseRouter)
 
 
 
