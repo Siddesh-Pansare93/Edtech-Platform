@@ -141,18 +141,22 @@ const handleCourseDetailsUpdate = asyncHandler(async (req, res) => {
 const handleCourseDeletion = asyncHandler(async (req, res) => {
     try {
         const { courseId } = req.params
+        console.log(courseId)
 
         if (!isValidObjectId(courseId)) {
             throw new ApiError(400, "Invalid Course Id")
         }
         const user = req.user._id
 
-        const course = Course.findOne(courseId)
+
+        const course = await Course.findById(courseId)
+        console.log(course)
         if (!course) {
             throw new ApiError(404, "Course not found")
         }
-        
-        if (course.instructor.toString() !== user.toString()) {
+
+
+        if (course.instructor?.toString() !== user?.toString()) {
             throw new ApiError(403, "You are not authorized to delete this course")
         }
 
@@ -176,6 +180,105 @@ const handleCourseDeletion = asyncHandler(async (req, res) => {
     }
 })
 
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    try {
+        const { courseId } = req.params
+        if(!isValidObjectId(courseId)){
+            throw new ApiError(400, "Invalid Course Id")
+        }
+        const user = req.user._id
+        const course = await Course.findById(courseId)
+
+        if (!course.instructor === user) {
+            throw new ApiError(403, "You are not authorized to publish this course")
+        }
+
+        course.isPublished = !course.isPublished
+        const publishedCourse = await course.save()
+
+        console.log(publishedCourse)
+
+        if (!publishedCourse) {
+            throw new ApiError(404, "Error in publishing Course")
+        }
+
+        res
+            .status(200)
+            .json(
+                new ApiResponse(200, publishedCourse, "Course Published Successfully")
+            )
+
+    } catch (error) {
+        res
+            .status(400)
+            .json(
+                new ApiResponse(400, null, `Error Publishing Course : ${error.message}`)
+            )
+    }
+})
+
+const getAllCourses = asyncHandler(async (req, res) => {
+    try {
+        const courses = await Course.find({
+            isPublished: true
+        })
+
+        console.log(courses)
+        if (!courses?.length) {
+            throw new ApiError(404, "No Courses Found")
+        }
+
+        res
+            .status(200)
+            .json(
+                new ApiResponse(200, courses, "Succesfully fetched course Details")
+            )
+    } catch (error) {
+        res
+            .status(400)
+            .json(
+                new ApiResponse(400, null, `ERROR while fetching Courses : ${error.message} `)
+            )
+    }
+})
+
+const getCourseDetails = asyncHandler(async (req, res) => {
+    try {
+        const { courseId } = req.params
+        if(!isValidObjectId(courseId)){
+            throw new ApiError(400, "Invalid Course Id")
+        }
+        console.log(courseId)
+
+        const course = await Course.findById(courseId).populate({
+            path: 'instructor',
+            select: 'name   email'
+        })
+
+        if (!course) {
+            throw new ApiError(404, "Course Not Found")
+        }
+
+
+        res
+            .status(200)
+            .json(
+                new ApiResponse(200, course, "Course Details Fetched Successfully")
+            )
+
+    } catch (error) {
+        res
+            .status(400)
+            .json(
+                new ApiResponse(400, null, `ERROR while fetching Course Details : ${error.message} `)
+            )
+
+    }
+})
+
+
+
+
 
 
 
@@ -183,5 +286,8 @@ const handleCourseDeletion = asyncHandler(async (req, res) => {
 export {
     handleCourseCreation,
     handleCourseDetailsUpdate,
-    handleCourseDeletion
+    handleCourseDeletion,
+    togglePublishStatus,
+    getAllCourses ,
+    getCourseDetails
 }
