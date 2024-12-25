@@ -6,7 +6,7 @@ const lessonSchema =  new mongoose.Schema({
         required :  true , 
         trim : true , 
     } , 
-    courseId : {
+    sectionId : {
         type : mongoose.Schema.Types.ObjectId , 
         ref  : "Course"
     } , 
@@ -15,7 +15,7 @@ const lessonSchema =  new mongoose.Schema({
         required : true 
     } , 
     order : {
-        type : Number ,             // Order of the lesson in the course
+        type : Number ,             // Order of the lesson in the section
         required : true
     }
 } , {timestamps : true })
