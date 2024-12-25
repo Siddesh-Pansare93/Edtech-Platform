@@ -157,7 +157,7 @@ const handleUpdateUserProfile = asyncHandler(async (req, res) => {
 
     const { name, username, email, skillLevel, role } = req.body
 
-    const updatedUser = findByIdAndUpdate(
+    const updatedUser = User.findByIdAndUpdate(
         req.user._id,
         {
             name,
@@ -190,7 +190,7 @@ const handleChangePassword = asyncHandler(async (req, res) => {
     if (oldPassword === newPassword) {
         return res
             .status(400)
-            .json(new ApiResponse(400, null, "Old Password and New Password cannot be same"))
+            .json(new ApiResponse(400, null, "Old Password and New Password cannot be the same. Please choose a different password"))
     }
 
 
@@ -211,6 +211,14 @@ const handleChangePassword = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, null, "Password Updated Successfully"))
 })
+
+
+const getEnrolledCourses = asyncHandler(async(req,  res )=>{
+
+    // logic goes here
+})
+
+
 
 
 
