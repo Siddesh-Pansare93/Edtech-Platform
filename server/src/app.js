@@ -57,13 +57,14 @@ app.use(
 
   import userRouter from './routes/user.route.js'
   import courseRouter from "./routes/course.route.js"
-
+  import sectionRouter from "./routes/section.route.js"
 
 
 
 
   app.use("/api/v1/users" , userRouter)
   app.use("/api/v1/course" , courseRouter)
+  app.use("/api/v1/section" , sectionRouter)
 
 
 
