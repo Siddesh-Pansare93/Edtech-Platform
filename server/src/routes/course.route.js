@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllCourses, getCourseDetails, handleCourseCreation, handleCourseDeletion, handleCourseDetailsUpdate, togglePublishStatus } from '../controllers/course.controller.js'
+import { getAllCourses, getCourseContent, getCourseDetails, handleCourseCreation, handleCourseDeletion, handleCourseDetailsUpdate, togglePublishStatus } from '../controllers/course.controller.js'
 import verifyJwt from '../middlewares/auth.middleware.js'
 import { upload } from "../middlewares/multer.middleware.js"
 import { isInstructorOrAdmin } from '../middlewares/role.middleware.js'
@@ -29,5 +29,7 @@ router.route("/:courseId")
 
 
 router.route("/toggle/:courseId").patch(isInstructorOrAdmin , togglePublishStatus)
+
+router.route("/content/:courseId").get(getCourseContent)
 
 export default router
