@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.util.js"
 import { ApiError } from "../utils/ApiError.util.js"
 import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
 import { isValidObjectId } from 'mongoose'
+import mongoose from 'mongoose'
 
 
 const handleCourseCreation = asyncHandler(async (req, res) => {
@@ -183,7 +184,7 @@ const handleCourseDeletion = asyncHandler(async (req, res) => {
 const togglePublishStatus = asyncHandler(async (req, res) => {
     try {
         const { courseId } = req.params
-        if(!isValidObjectId(courseId)){
+        if (!isValidObjectId(courseId)) {
             throw new ApiError(400, "Invalid Course Id")
         }
         const user = req.user._id
@@ -245,15 +246,17 @@ const getAllCourses = asyncHandler(async (req, res) => {
 const getCourseDetails = asyncHandler(async (req, res) => {
     try {
         const { courseId } = req.params
-        if(!isValidObjectId(courseId)){
+        if (!isValidObjectId(courseId)) {
             throw new ApiError(400, "Invalid Course Id")
         }
         console.log(courseId)
 
-        const course = await Course.findById(courseId).populate({
-            path: 'instructor',
-            select: 'name   email'
-        })
+        const course = await Course.findById(courseId).populate(
+            {
+                path: 'instructor',
+                select: 'name email'
+            }
+        ).select("-sections")
 
         if (!course) {
             throw new ApiError(404, "Course Not Found")
@@ -277,6 +280,50 @@ const getCourseDetails = asyncHandler(async (req, res) => {
 })
 
 
+const getCourseContent = asyncHandler(async (req, res) => {
+    try {
+        const { courseId } = req.params
+
+        if(!isValidObjectId(courseId)){
+            throw new ApiError(400, "Invalid Course Id")
+        }
+
+        const courseContent = await Course.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(courseId)
+                }
+            },
+            {
+                $lookup: {
+                    from : "sections" , 
+                    localField : "sections",
+                    foreignField : "_id" , 
+                    as : "content",
+                    pipeline : [
+                        {
+                            $project :{
+                                title : 1 , 
+                                lessons : 1 
+                            }
+                        }
+                    ]
+                }
+            }
+        ])
+
+        res.json(courseContent)
+
+    } catch(error) {
+        res
+            .status(400)
+            .json(
+                new ApiResponse(400, null, `ERROR while fetching Course Sections : ${error.message} `)
+            )
+    }
+})
+
+
 
 
 
@@ -288,6 +335,7 @@ export {
     handleCourseDetailsUpdate,
     handleCourseDeletion,
     togglePublishStatus,
-    getAllCourses ,
-    getCourseDetails
+    getAllCourses,
+    getCourseDetails ,
+    getCourseContent
 }
