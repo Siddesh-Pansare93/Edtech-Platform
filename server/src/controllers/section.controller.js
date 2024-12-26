@@ -107,8 +107,8 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
 
 const handleDeleteSection = asyncHandler(async (req, res) => {
     try {
-        const sectionId = req.params
-        const {courseId} = req.query
+        const {sectionId , courseId} = req.params
+        
 
         if (!isValidObjectId(sectionId)) {
             throw new ApiError(400, "Invalid Section Id")
@@ -119,8 +119,20 @@ const handleDeleteSection = asyncHandler(async (req, res) => {
             throw new ApiError(404, "Section not found")
         }
 
+        //deleting section in from sections array in course
+        const updateCourse = Course.findByIdAndUpdate(
+            courseId , 
+            {
+                $pull: {sections: sectionId}
+            }
+        )
+
+        if (!updateCourse) {
+            throw new ApiError(404, "Course not found or error in deleting section from course")
+            }
         
         
+        //deleting section document 
         const deletedSection = await Section.findByIdAndDelete(sectionId)
         res
             .status(200)
@@ -141,5 +153,4 @@ export {
     handleCreateSection , 
     handleDeleteSection , 
     handleUpdateSectionDetails
-
 }
