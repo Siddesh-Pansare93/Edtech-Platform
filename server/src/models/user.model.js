@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     email: {
-        type: String,
+        type: String,   
         required: true,
         lowercase: true,
         trim: true,
@@ -28,7 +28,9 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        required: true,
+        required: true ,
+        lowercase : true , 
+        trim : true ,
         enum: ["student", "instructor"]
     },
     skillLevel: {
