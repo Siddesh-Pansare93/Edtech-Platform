@@ -9,8 +9,10 @@ router.use(verifyJwt)
 router.use(isInstructorOrAdmin)
 
 
-router.route("/")
+router.route("/:courseId/create")
     .post(handleCreateSection)
+    
+router.route("/:courseId/:sectionId")
     .patch(handleUpdateSectionDetails)
     .delete(handleDeleteSection)
 
