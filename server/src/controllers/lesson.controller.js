@@ -106,9 +106,11 @@ const handleUpdateLesson = asyncHandler(async (req, res) => {
         const updatedLesson = await Lesson.findByIdAndUpdate(
             lessonId,
             {
-                title,
-                content,
-                order
+                $set: {
+                    title,
+                    content,
+                    order
+                }
             },
             {
                 new: true
@@ -133,7 +135,7 @@ const handleUpdateLesson = asyncHandler(async (req, res) => {
 
 const handleDeleteLesson = asyncHandler(async (req, res) => {
     try {
-        const { courseId , sectionId, lessonId } = req.params
+        const { courseId, sectionId, lessonId } = req.params
 
         if (!(isValidObjectId(lessonId) || isValidObjectId(sectionId))) {
             throw new ApiError(400, "Invalid Lesson Id")
