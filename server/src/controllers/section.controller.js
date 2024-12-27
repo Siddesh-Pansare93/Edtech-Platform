@@ -10,14 +10,14 @@ import { ApiError } from '../utils/ApiError.util.js'
 const handleCreateSection = asyncHandler(async (req, res) => {
     try {
         const { title, order } = req.body
-        const {courseId} = req.params
+        const { courseId } = req.params
 
         if (!isValidObjectId(courseId)) {
             throw new ApiError(400, "Invalid Course Id")
         }
 
         //Checking if user is instructor of this course
-        const isInstructor = await isInstructorOfCourse(courseId , req.user._id)
+        const isInstructor = await isInstructorOfCourse(courseId, req.user._id)
         if (!isInstructor) {
             throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
         }
@@ -28,7 +28,7 @@ const handleCreateSection = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Course not Found")
         }
 
-       
+
 
 
         const createdSection = await Section.create({
@@ -60,13 +60,13 @@ const handleCreateSection = asyncHandler(async (req, res) => {
 
 const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
     try {
-        const { title, order} = req.body
-        const {courseId , sectionId} = req.params
+        const { title, order } = req.body
+        const { courseId, sectionId } = req.params
 
-        if (!(isValidObjectId(courseId)||isValidObjectId(sectionId))) {
+        if (!(isValidObjectId(courseId) || isValidObjectId(sectionId))) {
             throw new ApiError(400, "Invalid Course Id or Section Id")
         }
-       
+
         //Checking if user is instructor of this course
         const isInstructor = isInstructorOfCourse(courseId, req.user._id)
         if (!isInstructor) {
@@ -78,14 +78,16 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Course not Found")
         }
 
-        
+
 
 
         const updatedSection = await Section.findByIdAndUpdate(
             sectionId,
             {
-                title,
-                order,
+                $set: {
+                    title,
+                    order
+                }
             },
             {
                 new: true
@@ -115,10 +117,10 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
 
 const handleDeleteSection = asyncHandler(async (req, res) => {
     try {
-        const {sectionId , courseId} = req.params
-        
+        const { sectionId, courseId } = req.params
 
-        if (!(isValidObjectId(sectionId)||isValidObjectId(courseId))) {
+
+        if (!(isValidObjectId(sectionId) || isValidObjectId(courseId))) {
             throw new ApiError(400, "Invalid Section Id or Course Id")
         }
 
@@ -135,17 +137,17 @@ const handleDeleteSection = asyncHandler(async (req, res) => {
 
         //deleting section in from sections array in course
         const updateCourse = Course.findByIdAndUpdate(
-            courseId , 
+            courseId,
             {
-                $pull: {sections: sectionId}
+                $pull: { sections: sectionId }
             }
         )
 
         if (!updateCourse) {
             throw new ApiError(404, "Course not found or error in deleting section from course")
-            }
-        
-        
+        }
+
+
         //deleting section document 
         const deletedSection = await Section.findByIdAndDelete(sectionId)
         res
@@ -164,7 +166,7 @@ const handleDeleteSection = asyncHandler(async (req, res) => {
 
 
 export {
-    handleCreateSection , 
-    handleDeleteSection , 
+    handleCreateSection,
+    handleDeleteSection,
     handleUpdateSectionDetails
 }
