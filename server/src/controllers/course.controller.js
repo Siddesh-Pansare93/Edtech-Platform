@@ -107,13 +107,15 @@ const handleCourseDetailsUpdate = asyncHandler(async (req, res) => {
         const updatedCourse = await Course.findByIdAndUpdate(
             courseId,
             {
-                title,
-                description,
-                paid,
-                price: pricing,
-                validity,
-                preRequisites: preRequisites,
-                curriculum
+                $set: {
+                    title,
+                    description,
+                    paid,
+                    price: pricing,
+                    validity,
+                    preRequisites: preRequisites,
+                    curriculum
+                }
             },
             {
                 new: true
@@ -284,7 +286,7 @@ const getCourseContent = asyncHandler(async (req, res) => {
     try {
         const { courseId } = req.params
 
-        if(!isValidObjectId(courseId)){
+        if (!isValidObjectId(courseId)) {
             throw new ApiError(400, "Invalid Course Id")
         }
 
@@ -296,15 +298,15 @@ const getCourseContent = asyncHandler(async (req, res) => {
             },
             {
                 $lookup: {
-                    from : "sections" , 
-                    localField : "sections",
-                    foreignField : "_id" , 
-                    as : "content",
-                    pipeline : [
+                    from: "sections",
+                    localField: "sections",
+                    foreignField: "_id",
+                    as: "content",
+                    pipeline: [
                         {
-                            $project :{
-                                title : 1 , 
-                                lessons : 1 
+                            $project: {
+                                title: 1,
+                                lessons: 1
                             }
                         }
                     ]
@@ -314,7 +316,7 @@ const getCourseContent = asyncHandler(async (req, res) => {
 
         res.json(courseContent)
 
-    } catch(error) {
+    } catch (error) {
         res
             .status(400)
             .json(
@@ -336,6 +338,6 @@ export {
     handleCourseDeletion,
     togglePublishStatus,
     getAllCourses,
-    getCourseDetails ,
+    getCourseDetails,
     getCourseContent
 }
