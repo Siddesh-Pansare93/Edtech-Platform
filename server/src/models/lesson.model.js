@@ -6,10 +6,6 @@ const lessonSchema =  new mongoose.Schema({
         required :  true , 
         trim : true , 
     } , 
-    sectionId : {
-        type : mongoose.Schema.Types.ObjectId , 
-        ref  : "Course"
-    } , 
     content : {
         type : String ,             // url of the video or anything ...
         required : true 

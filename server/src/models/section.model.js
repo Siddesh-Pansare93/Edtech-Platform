@@ -5,11 +5,7 @@ const sectionSchema =  new mongoose.Schema({
         type : String , 
         required :  true , 
         trim : true , 
-    } , 
-    courseId : {
-        type : mongoose.Schema.Types.ObjectId , 
-        ref  : "Course"
-    } , 
+    } ,  
     lessons : [
         {
             type : mongoose.Schema.Types.ObjectId ,
