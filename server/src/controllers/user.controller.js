@@ -160,11 +160,13 @@ const handleUpdateUserProfile = asyncHandler(async (req, res) => {
     const updatedUser = User.findByIdAndUpdate(
         req.user._id,
         {
+           $set : {
             name,
             email,
             username,
             skillLevel,
             role
+           }
         },
         {
             new: true
