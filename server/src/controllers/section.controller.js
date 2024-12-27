@@ -3,30 +3,37 @@ import { Section } from '../models/section.model.js'
 import { ApiResponse } from '../utils/ApiResponse.util.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { Course } from "../models/course.model.js"
+import { isInstructorOfCourse } from '../utils/isInstructor.util.js'
+import { ApiError } from '../utils/ApiError.util.js'
 
 
 const handleCreateSection = asyncHandler(async (req, res) => {
     try {
-        const { title, order, courseId } = req.body
+        const { title, order } = req.body
+        const {courseId} = req.params
 
-        if (!isValidObjectId) {
-            throw new ApiError(400, "Course not Found")
+        if (!isValidObjectId(courseId)) {
+            throw new ApiError(400, "Invalid Course Id")
         }
+
+        //Checking if user is instructor of this course
+        const isInstructor = await isInstructorOfCourse(courseId , req.user._id)
+        if (!isInstructor) {
+            throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
+        }
+
 
         const course = await Course.findById(courseId)
         if (!course) {
             throw new ApiError(400, "Course not Found")
         }
 
-        if (!(course.instructor === req.user._id)) {
-            throw new ApiError(403, "You are not authorized to create a section for this course")
-        }
+       
 
 
         const createdSection = await Section.create({
             title,
             order,
-            courseId,
         })
 
         if (!createdSection) {
@@ -53,14 +60,17 @@ const handleCreateSection = asyncHandler(async (req, res) => {
 
 const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
     try {
-        const { title, order, courseId } = req.body
-        const sectionId = req.params
+        const { title, order} = req.body
+        const {courseId , sectionId} = req.params
 
-        if (!isValidObjectId(courseId)) {
-            throw new ApiError(400, "Invalid Course Id")
+        if (!(isValidObjectId(courseId)||isValidObjectId(sectionId))) {
+            throw new ApiError(400, "Invalid Course Id or Section Id")
         }
-        if (!isValidObjectId(sectionId)) {
-            throw new ApiError(400, "Invalid Section Id")
+       
+        //Checking if user is instructor of this course
+        const isInstructor = isInstructorOfCourse(courseId, req.user._id)
+        if (!isInstructor) {
+            throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
         }
 
         const course = await Course.findById(courseId)
@@ -68,9 +78,7 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Course not Found")
         }
 
-        if (!(course.instructor === req.user._id)) {
-            throw new ApiError(403, "You are not authorized to update a section for this course")
-        }
+        
 
 
         const updatedSection = await Section.findByIdAndUpdate(
@@ -99,7 +107,7 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
         res
             .status(400)
             .json(
-                new ApiResponse(400, null, `ERROR Creating Section : ${error.message}`)
+                new ApiResponse(400, null, `ERROR updating Section : ${error.message}`)
             )
     }
 })
@@ -110,8 +118,14 @@ const handleDeleteSection = asyncHandler(async (req, res) => {
         const {sectionId , courseId} = req.params
         
 
-        if (!isValidObjectId(sectionId)) {
-            throw new ApiError(400, "Invalid Section Id")
+        if (!(isValidObjectId(sectionId)||isValidObjectId(courseId))) {
+            throw new ApiError(400, "Invalid Section Id or Course Id")
+        }
+
+        //Checking if user is instructor of this course
+        const isInstructor = isInstructorOfCourse(courseId, req.user._id)
+        if (!isInstructor) {
+            throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
         }
 
         const section = await Section.findById(sectionId)
