@@ -9,9 +9,6 @@ const enrollmentSchema  = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId , 
         ref : "User"
     },
-    progress : {
-        type : Decimal
-    } , 
     status : {
         type : String ,
         enum : ["completed" , "inProgress"]
