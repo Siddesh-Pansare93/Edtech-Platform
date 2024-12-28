@@ -8,9 +8,9 @@ const isEnrolled = async(courseId , userId , res )=> {
         if(!(isValidObjectId(courseId)|| isValidObjectId(userId))){
             throw new Error('Invalid Course or User Id')
         }
-        const enrollment = await Enrollment.findOne({courseId , userId})
+        const enrollment = await Enrollment.findOne({course:courseId , user:userId})
         console.log("Enrollement object : " , enrollment )
-        return enrollment?.length ? true : false
+        return enrollment ? true : false
 
     } catch (error) {
         res
