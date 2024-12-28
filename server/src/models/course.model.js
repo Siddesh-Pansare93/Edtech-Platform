@@ -19,7 +19,8 @@ const courseSchema = new mongoose.Schema({
     }],
     curriculum  : [{
         type : String , 
-        required : true
+        required : true , 
+        trim : true
     }] , 
     instructor: {
         type: mongoose.Schema.Types.ObjectId,
