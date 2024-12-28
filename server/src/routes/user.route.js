@@ -7,6 +7,7 @@ import { handleUserLogin,
     handleUserLogout ,
 } from "../controllers/user.controller.js"
 import verifyJwt from "../middlewares/auth.middleware.js"
+import { verifyAndEnroll } from "../controllers/paymentAndEnrollment.controller.js"
 
 
 const router = express.Router()
@@ -30,6 +31,7 @@ router.route("/change-password").patch(verifyJwt , handleChangePassword)
 // router.route("/get-user-by-id").get(handleGetUserById)
 // router.route("/delete-user").delete(handleDeleteUser)
 
+router.route("/verify-payment").post(verifyJwt , verifyAndEnroll)
 
 
 
