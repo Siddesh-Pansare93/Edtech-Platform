@@ -27,8 +27,8 @@ const handleCourseCreation = asyncHandler(async (req, res) => {
         }
 
 
-        const pricing = parseFloat(price)
-        const courseCurriculum = curriculum.split(",").map(index => index.trim())
+        
+        const courseCurriculum = curriculum.split(",")
         console.log(courseCurriculum)
         const thumbnailLocalPath = req.files?.thumbnail[0].path
 
@@ -45,7 +45,7 @@ const handleCourseCreation = asyncHandler(async (req, res) => {
             title,
             description,
             paid,
-            price: pricing,
+            price,
             validity,
             preRequisites,
             thumbnail: thumbnail.url,
@@ -78,28 +78,29 @@ const handleCourseDetailsUpdate = asyncHandler(async (req, res) => {
     try {
         const { courseId } = req.params
         const user = req.user._id
-        const course = await Course.findById(courseId)
-        if (!course) {
-            throw new ApiError(404, "Course not found")
-        }
-      
-        if (course.instructor.toString() !== user.toString()) {
-            throw new ApiError(403, "You are not authorized to update this course")
-        }
- 
-        const { title, description, paid, price, validity, curriculum ,preRequisites } = req.body
 
-        if (!isValidObjectId) {
+        if (!isValidObjectId(courseId)) {
             throw new ApiError(400, "Invalid course id")
         }
 
 
+        const course = await Course.findById(courseId)
+        if (!course) {
+            throw new ApiError(404, "Course not found")
+        }
+
+        if (course.instructor.toString() !== user.toString()) {
+            throw new ApiError(403, "You are not authorized to update this course")
+        }
+
+        const { title, description, paid, price, validity, curriculum, preRequisites } = req.body
 
         if ([title, description, paid, price, validity, curriculum].some(field => !field || field.trim() === "")) {
             throw new ApiError(400, "ALL fields are required")
         }
 
-        const pricing = parseFloat(price)
+        // const pricing = parseFloat(price)
+        const courseCurriculum = curriculum.split(",")
 
 
         const updatedCourse = await Course.findByIdAndUpdate(
@@ -109,10 +110,10 @@ const handleCourseDetailsUpdate = asyncHandler(async (req, res) => {
                     title,
                     description,
                     paid,
-                    price: pricing,
+                    price,
                     validity,
                     preRequisites: preRequisites,
-                    curriculum
+                    curriculum : courseCurriculum
                 }
             },
             {
