@@ -46,7 +46,7 @@ const purchaseCourse = asyncHandler(async (req, res) => {
 
             if (!course.paid) {
                 await Enrollment.create({ user: user._id, course: course._id });
-                enrolledCourseIds.push(course._id); // Track free course IDs
+                enrolledCourseIds.push(course._id); 
             } else {
                 line_items.push({
                     price_data: {
@@ -57,12 +57,12 @@ const purchaseCourse = asyncHandler(async (req, res) => {
                     quantity: 1,
                 });
                 totalAmount += course.price;
-                enrolledCourseIds.push(course._id); // Track paid course IDs for later processing
+                enrolledCourseIds.push(course._id);
             }
         }
 
         if (line_items.length > 0) {
-            const courseIdsString = enrolledCourseIds.join(","); // Combine course IDs into a string
+            const courseIdsString = enrolledCourseIds.join(","); 
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 line_items,
@@ -84,42 +84,42 @@ const purchaseCourse = asyncHandler(async (req, res) => {
 
 
 
-const verifyAndEnroll = async(req , res)=>{
+const verifyAndEnroll = asyncHandler(async (req, res) => {
     try {
-        const {success , courseIds} = req.body
+        const { success, courseIds } = req.body
         console.log(req.body)
         console.log(success)
         console.log(courseIds)
         console.log(req.user)
 
-        if(success){
-            if(!courseIds?.length){
-                throw new ApiError(400,  "No course IDs provided")
+        if (success) {
+            if (!courseIds?.length) {
+                throw new ApiError(400, "No course IDs provided")
             }
 
-            for(let id of courseIds){
+            for (let id of courseIds) {
                 const enrollmentObject = await Enrollment.create({
-                    user : req.user._id , 
-                    course : id,
+                    user: req.user._id,
+                    course: id,
                 })
                 console.log(enrollmentObject)
             }
 
             res
-            .status(200)
-            .json(new ApiResponse(200, null, "Courses enrolled successfully"))
-        }else{
+                .status(200)
+                .json(new ApiResponse(200, null, "Courses enrolled successfully"))
+        } else {
             res.json("Payment Failed ...Please try Again")
         }
-        
+
     } catch (error) {
         res
-        .status(error.statusCode || 400)
-        .json(new ApiResponse(error.statusCode, null, `ERROR : ${error.message}`))
-       
-}
-}
+            .status(error.statusCode || 400)
+            .json(new ApiResponse(error.statusCode, null, `ERROR : ${error.message}`))
+
+    }
+})
 export {
-    purchaseCourse , 
+    purchaseCourse,
     verifyAndEnroll
 }
