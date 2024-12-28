@@ -1,6 +1,6 @@
-import { CourseProgress } from "../models/courseProgress.model";
-import { ApiResponse } from "../utils/ApiResponse.util";
-import { asyncHandler } from "../utils/asyncHandler";
+import { CourseProgress } from "../models/courseProgress.model.js";
+import { ApiResponse } from "../utils/ApiResponse.util.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { Course } from "../models/course.model.js";
 import { ApiError } from "../utils/ApiError.util.js"
 
