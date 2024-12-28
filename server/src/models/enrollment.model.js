@@ -13,7 +13,8 @@ const enrollmentSchema  = new mongoose.Schema({
     },
     status : {
         type : String ,
-        enum : ["completed" , "inProgress"]
+        enum : ["completed" , "inProgress"] , 
+        default: "inProgress"
         }
 } , {timestamps : true })
 
