@@ -58,6 +58,9 @@ app.use(
   import userRouter from './routes/user.route.js'
   import courseRouter from "./routes/course.route.js"
   import sectionRouter from "./routes/section.route.js"
+  import lessonRouter from "./routes/lesson.route.js"
+  import enrollRouter from "./routes/enroll.route.js"
+  import ProgressRouter from "./routes/courseProgress.route.js"
 
 
 
@@ -65,6 +68,9 @@ app.use(
   app.use("/api/v1/users" , userRouter)
   app.use("/api/v1/course" , courseRouter)
   app.use("/api/v1/section" , sectionRouter)
+  app.use("api/v1/lesson" , lessonRouter)
+  app.use("/api/v1/enroll" , enrollRouter)
+  app.use("/api/v1/progress" , ProgressRouter)
 
 
 
