@@ -9,57 +9,117 @@ import { ApiResponse } from '../utils/ApiResponse.util.js';
 import { isEnrolled } from '../utils/isEnrolled.util.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import mongoose from 'mongoose';
+import Stripe from 'stripe'
+import { Enrollment } from '../models/enrollment.model.js';
+
+
+const stripe = new Stripe(process.env.STRIPE_API_KEY)
 
 
 const purchaseCourse = asyncHandler(async (req, res) => {
     try {
         const { courses } = req.body;
-        console.log(courses)
         const user = req.user;
 
-        if (courses.length === 0) {
-            throw new ApiError(400, "Please provide course Id")
+        if (!courses || courses.length === 0) {
+            throw new ApiError(400, "Please provide course IDs");
+        }
+
+        const courseDetails = await Course.find({ _id: { $in: courses } });
+
+        if (courseDetails.length !== courses.length) {
+            throw new ApiError(404, "Some courses not found");
         }
 
         let totalAmount = 0;
+        const line_items = [];
+        const enrolledCourseIds = [];
 
-        for (const courseId of courses) {
-            console.log(courseId)
-            const course = await Course.findById(courseId);
+        for (const course of courseDetails) {
+            const isAlreadyEnrolled = await isEnrolled(course._id, user._id);
 
-            if (!course) {
-                return res.status(404).json({ msg: "Course not found" });
-            }
-
-
-            const isALreadyEnrolledInCourse = await isEnrolled(courseId, req.user._id)
-            console.log(isALreadyEnrolledInCourse)
-            if (isALreadyEnrolledInCourse) {
+            if (isAlreadyEnrolled) {
                 return res.status(400).json(
-                    new ApiResponse(
-                    400 , null ,  `You are already enrolled in  course : ${course.title} `
-                ))
+                    new ApiResponse(400, null, `Already enrolled in course: ${course.title}`)
+                );
             }
 
-            res.send(isALreadyEnrolledInCourse)
-            //check if user has already paid for this course
-            
-           
-            //check if course is paid or not
-            //if payment is successfull save the payment details in db
-            //after that create enrollment object
-            // const payment = await Payment.create({
-
+            if (!course.paid) {
+                await Enrollment.create({ userId: user._id, courseId: course._id });
+                enrolledCourseIds.push(course._id); // Track free course IDs
+            } else {
+                line_items.push({
+                    price_data: {
+                        currency: 'INR',
+                        unit_amount: course.price * 100,
+                        product_data: { name: course.title },
+                    },
+                    quantity: 1,
+                });
+                totalAmount += course.price;
+                enrolledCourseIds.push(course._id); // Track paid course IDs for later processing
+            }
         }
-        } catch (error) {
-            res
-            .status(400)
-            .json(new ApiResponse(400, null, `ERROR : ${error.message}`))
+
+        if (line_items.length > 0) {
+            const courseIdsString = enrolledCourseIds.join(","); // Combine course IDs into a string
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items,
+                mode: 'payment',
+                success_url: `${process.env.CLIENT_URL}/verify?success=true&courseIds=${courseIdsString}`,
+                cancel_url: `${process.env.CLIENT_URL}/verify?success=false`,
+            });
+
+            return res.status(200).json(new ApiResponse(200, session.url, "Payment Initiated"));
         }
-    })
 
+        res.status(200).json(new ApiResponse(200, null, "Free courses enrolled successfully"));
 
-
-    export {
-        purchaseCourse
+    } catch (error) {
+        res.status(400).json(new ApiResponse(400, null, `Error: ${error.message}`));
     }
+});
+
+
+
+
+const verifyAndEnroll = async(req , res)=>{
+    try {
+        const {success , courseIds} = req.body
+        console.log(req.body)
+        console.log(success)
+        console.log(courseIds)
+        console.log(req.user)
+
+        if(success){
+            if(!courseIds?.length){
+                throw new ApiError(400,  "No course IDs provided")
+            }
+
+            for(let id of courseIds){
+                const enrollmentObject = await Enrollment.create({
+                    user : req.user._id , 
+                    course : id,
+                })
+                console.log(enrollmentObject)
+            }
+
+            res
+            .status(200)
+            .json(new ApiResponse(200, null, "Courses enrolled successfully"))
+        }else{
+            res.json("Payment Failed ...Please try Again")
+        }
+        
+    } catch (error) {
+        res
+        .status(error.statusCode || 400)
+        .json(new ApiResponse(error.statusCode, null, `ERROR : ${error.message}`))
+       
+}
+}
+export {
+    purchaseCourse , 
+    verifyAndEnroll
+}
