@@ -45,7 +45,7 @@ const purchaseCourse = asyncHandler(async (req, res) => {
             }
 
             if (!course.paid) {
-                await Enrollment.create({ userId: user._id, courseId: course._id });
+                await Enrollment.create({ user: user._id, course: course._id });
                 enrolledCourseIds.push(course._id); // Track free course IDs
             } else {
                 line_items.push({
