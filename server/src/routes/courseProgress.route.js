@@ -1,6 +1,6 @@
 import express from 'express'
-import { getCourseProgress, updateCourseProgress } from '../controllers/CourseProgress.controller'
-import {verifyJwt} from "../middlewares/auth.middleware.js"
+import { getCourseProgress, updateCourseProgress } from '../controllers/CourseProgress.controller.js'
+import verifyJwt from "../middlewares/auth.middleware.js"
 
 
 const router = express.Router()

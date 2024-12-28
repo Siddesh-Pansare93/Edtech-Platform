@@ -1,7 +1,7 @@
 import express from 'express'
 import verifyJwt from '../middlewares/auth.middleware.js'
 import { handleAddLesson, handleDeleteLesson, handleUpdateLesson } from '../controllers/lesson.controller.js'
-import { isInstructorOrAdmin } from '../middlewares/role.middleware'
+import { isInstructorOrAdmin } from '../middlewares/role.middleware.js'
 
 const router  = express.Router()
 
@@ -14,3 +14,6 @@ router.route("/:courseId/:sectionId/add")
 router.route("/:courseId/:sectionId/:lessonId")
     .patch(handleUpdateLesson)
     .delete(handleDeleteLesson)
+
+
+export default router
