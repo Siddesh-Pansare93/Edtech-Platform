@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
 const enrollmentSchema  = new mongoose.Schema({
-    courseId :  {
+    course :  {
         type : mongoose.Schema.Types.ObjectId , 
-        ref : "Course"
+        ref : "Course",
+        required : true
     } , 
-    userId : { 
+    user : { 
         type : mongoose.Schema.Types.ObjectId , 
-        ref : "User"
+        ref : "User",
+        required : true
     },
     status : {
         type : String ,
