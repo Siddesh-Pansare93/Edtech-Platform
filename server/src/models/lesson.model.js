@@ -19,4 +19,4 @@ const lessonSchema =  new mongoose.Schema({
 
 
 
-export default Lesson = mongoose.model("Lesson" , lessonSchema)
+export const Lesson = mongoose.model("Lesson" , lessonSchema)
