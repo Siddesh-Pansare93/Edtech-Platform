@@ -78,18 +78,16 @@ const handleCourseDetailsUpdate = asyncHandler(async (req, res) => {
     try {
         const { courseId } = req.params
         const user = req.user._id
-
-        const course = Course.findOne(courseId)
+        const course = await Course.findById(courseId)
         if (!course) {
             throw new ApiError(404, "Course not found")
         }
-
+      
         if (course.instructor.toString() !== user.toString()) {
             throw new ApiError(403, "You are not authorized to update this course")
         }
-
-        const { title, description, paid, price, validity, curriculum } = req.body
-        let preRequisites = JSON.parse(req.body.preRequisites)
+ 
+        const { title, description, paid, price, validity, curriculum ,preRequisites } = req.body
 
         if (!isValidObjectId) {
             throw new ApiError(400, "Invalid course id")
