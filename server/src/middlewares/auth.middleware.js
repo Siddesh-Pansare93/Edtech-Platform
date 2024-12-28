@@ -8,7 +8,8 @@ import { ApiResponse } from "../utils/ApiResponse.util.js"
 
 const verifyJwt = async (req, res, next) => {
    try {
-      const token = req.cookies?.accessToken || req.headers["Authorization"]?.split(" ")[1]
+      
+      const token = req.cookies?.accessToken || req.headers["authorization"]?.split(" ")[1]
 
       if (!token) {
          throw new ApiError(400, "Access Token not Present : Please Login to get Token")
