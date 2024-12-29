@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError.util.js"
 import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
 import { isValidObjectId } from 'mongoose'
 import mongoose from 'mongoose'
+import { isEnrolled } from '../utils/isEnrolled.util.js'
 
 
 const handleCourseCreation = asyncHandler(async (req, res) => {
@@ -27,7 +28,7 @@ const handleCourseCreation = asyncHandler(async (req, res) => {
         }
 
 
-        
+
         const courseCurriculum = curriculum.split(",")
         console.log(courseCurriculum)
         const thumbnailLocalPath = req.files?.thumbnail[0].path
@@ -113,7 +114,7 @@ const handleCourseDetailsUpdate = asyncHandler(async (req, res) => {
                     price,
                     validity,
                     preRequisites: preRequisites,
-                    curriculum : courseCurriculum
+                    curriculum: courseCurriculum
                 }
             },
             {
@@ -289,7 +290,14 @@ const getCourseContent = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Invalid Course Id")
         }
 
-        const courseContent = await Course.aggregate([
+        const isEnrolledInCourse = await isEnrolled(courseId, req.user._id)
+        console.log(isEnrolledInCourse)
+        if (!isEnrolledInCourse) {
+            throw new ApiError(403, "You are not enrolled in this course")
+        }
+
+
+        const completeCourseDetails = await Course.aggregate([
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(courseId)
@@ -303,6 +311,14 @@ const getCourseContent = asyncHandler(async (req, res) => {
                     as: "content",
                     pipeline: [
                         {
+                            $lookup: {
+                                from: "lessons",
+                                localField: "lessons",
+                                foreignField: "_id",
+                                as: "lessons"
+                            }
+                        },
+                        {
                             $project: {
                                 title: 1,
                                 lessons: 1
@@ -313,7 +329,30 @@ const getCourseContent = asyncHandler(async (req, res) => {
             }
         ])
 
-        res.json(courseContent)
+        if (!completeCourseDetails?.length) {
+            throw new ApiError(404, "Course Content Not Found")
+        }
+
+        const courseContent = completeCourseDetails[0].content.map((section) => {
+            return {
+                sectionId : section._id , 
+                title: section.title,
+                lessons: section.lessons.map((lesson) => {
+                    return {
+                        title: lesson.title,
+                        content : lesson.content
+                    }
+                }
+                )
+            }
+        }
+        )
+        
+        res
+            .status(200)
+            .json(
+                new ApiResponse(200 , courseContent , "Course Content Fetched Successfully")
+            )
 
     } catch (error) {
         res
