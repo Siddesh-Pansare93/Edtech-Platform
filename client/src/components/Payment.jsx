@@ -19,8 +19,11 @@ function Payment() {
           })
     })
     const data = await response.json()
+    
     if(data.success){
       window.location.replace(data.data)
+    }else{
+      alert(data.message)
     }
   }
 
