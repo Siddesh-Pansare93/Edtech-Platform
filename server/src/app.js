@@ -68,7 +68,7 @@ app.use(
   app.use("/api/v1/users" , userRouter)
   app.use("/api/v1/course" , courseRouter)
   app.use("/api/v1/section" , sectionRouter)
-  app.use("api/v1/lesson" , lessonRouter)
+  app.use("/api/v1/lesson" , lessonRouter)
   app.use("/api/v1/enroll" , enrollRouter)
   app.use("/api/v1/progress" , ProgressRouter)
 
