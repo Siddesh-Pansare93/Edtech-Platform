@@ -7,7 +7,7 @@ function Verify() {
     console.log(window.location.href);
     console.log(searchParams)
     const success = searchParams.get('success')
-    const courseIds = searchParams.get('courseIds').split(",")
+    const courseIds = searchParams.get('courseIds')?.split(",") || null
     console.log(success)
     console.log(courseIds)
 
