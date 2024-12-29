@@ -25,6 +25,7 @@ const purchaseCourse = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Please provide course IDs");
         }
 
+        //Finding the course Details for the courseIds provided by user 
         const courseDetails = await Course.find({ _id: { $in: courses } });
 
         if (courseDetails.length !== courses.length) {
@@ -33,21 +34,23 @@ const purchaseCourse = asyncHandler(async (req, res) => {
 
         let totalAmount = 0;
         const line_items = [];
-        const enrolledCourseIds = [];
+        const enrolledCourseIds = [];       //  maintaining this ..so courseIds can be pass to the frontend -- (kyuki verify me courseIds lagenge)
 
         for (const course of courseDetails) {
+            //Checking if the user is already enrolled in course
             const isAlreadyEnrolled = await isEnrolled(course._id, user._id);
 
             if (isAlreadyEnrolled) {
-                return res.status(400).json(
-                    new ApiResponse(400, null, `Already enrolled in course: ${course.title}`)
-                );
+                throw new ApiError(400  , `You are Already Enrolled in the Course : ${course.title} `)
             }
 
+            //Checking Course is Paid or not 
             if (!course.paid) {
+                //Free hai to sidha enrollment create karenge 
                 await Enrollment.create({ user: user._id, course: course._id });
                 enrolledCourseIds.push(course._id); 
             } else {
+                //Paid hai to stripe se payment karenge
                 line_items.push({
                     price_data: {
                         currency: 'INR',
@@ -87,10 +90,6 @@ const purchaseCourse = asyncHandler(async (req, res) => {
 const verifyAndEnroll = asyncHandler(async (req, res) => {
     try {
         const { success, courseIds } = req.body
-        console.log(req.body)
-        console.log(success)
-        console.log(courseIds)
-        console.log(req.user)
 
         if (success) {
             if (!courseIds?.length) {
