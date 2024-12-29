@@ -6,6 +6,7 @@ import { Course } from "../models/course.model.js"
 import { Section } from "../models/section.model.js"
 import { ApiResponse } from "../utils/ApiResponse.util.js"
 import { isInstructorOfCourse } from "../utils/isInstructor.util.js"
+import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
 
 
 const handleAddLesson = asyncHandler(async (req, res) => {
@@ -23,26 +24,35 @@ const handleAddLesson = asyncHandler(async (req, res) => {
             throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
         }
 
+        console.log(req.body)
 
-        if (!title || !content || !order) {
+        if (!title  || !order) {
             throw new ApiError(400, "Please fill in all fields")
         }
 
-        const course = Course.findById(courseId)
-
-        if (!course.sections.includes(sectionId)) {
+        const course = await Course.findById(courseId)
+        
+        if (!course?.sections?.includes(sectionId)) {
             throw new ApiError(400, "This Course doesn't contain this section")
         }
-
-        const section = Section.findById(sectionId)
+        
+        const section = await Section.findById(sectionId)
 
         if (!section) {
             throw new ApiError(404, "Section not found")
         }
 
+        const videoLocalPath = req.file?.path
+        console.log(videoLocalPath)
+
+
+        const videoResponseFromCLoudinary = await uploadOnCloudinary(videoLocalPath)
+        console.log(videoResponseFromCLoudinary)
+        const videoUrl = videoResponseFromCLoudinary.secure_url
+
         const createdLesson = await Lesson.create({
             title,
-            content,
+            content : videoUrl,
             order,
         })
 
@@ -84,7 +94,7 @@ const handleAddLesson = asyncHandler(async (req, res) => {
 const handleUpdateLesson = asyncHandler(async (req, res) => {
     try {
         const { courseId, lessonId } = req.params
-        const { title, content, order } = req.body
+        const { title,  order } = req.body
 
         if (!(isValidObjectId(lessonId) || isValidObjectId(courseId))) {
             throw new ApiError(400, "Invalid Lesson Id")
@@ -98,7 +108,7 @@ const handleUpdateLesson = asyncHandler(async (req, res) => {
 
 
 
-        if (!title || !content || !order) {
+        if (!title ||  !order) {
             throw new ApiError(400, "Please fill all fields")
         }
 
@@ -108,7 +118,6 @@ const handleUpdateLesson = asyncHandler(async (req, res) => {
             {
                 $set: {
                     title,
-                    content,
                     order
                 }
             },
