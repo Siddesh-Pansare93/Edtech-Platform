@@ -1,4 +1,4 @@
-import React, { useEffect ,  useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import axiosInstance from '@/utils/axiosInstance'
 
@@ -9,7 +9,7 @@ const CourseDetails = () => {
 
     useEffect(() => {
         console.log(id)
-        
+
         const fetchCourseDetails = async () => {
             try {
                 const response = await axiosInstance.get(`/course/details/${id}`)
@@ -24,18 +24,27 @@ const CourseDetails = () => {
 
         fetchCourseDetails()
 
-    }  , [id])
-  return (
-    <div>
-        <h1>Course Details</h1>
-        <p>Course ID: {id}</p>
+    }, [id])
+    return (
         <div>
-        <p>Title: {courseDetails.title}</p>
-        <p>Price: {courseDetails.price}</p>
-        <p>{courseDetails.description}</p>
+            <h1>Course Details</h1>
+            <p>Course ID: {id}</p>
+            <div>
+                <p>Title: {courseDetails.title}</p>
+                <p>Price: {courseDetails.price}</p>
+                <p>{courseDetails.description}</p>
+
+
+
+                <h1>Curriculum</h1>
+                {courseDetails.curriculum?.map(item => (
+                    <h1 key={item}>{item}</h1>
+                ))}
+
+            </div>
+            <button>Enroll</button>
         </div>
-    </div>
-  )
+    )
 }
 
 export default CourseDetails
