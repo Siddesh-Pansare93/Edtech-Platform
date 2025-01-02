@@ -1,18 +1,41 @@
-    import React from 'react'
-    import { useForm } from 'react-hook-form'
-    import Input from '../Common/Input'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import Input from '../Common/Input'
+import axiosInstance from '@/utils/axiosInstance'
+import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { login } from '@/store/Features/authSlice'
 
-    function Login() {
-        const { register, handleSubmit, formState: { errors } } = useForm()
+function Login() {
+    const [submitting, setSubmitting] = useState(false)
+    const { register, handleSubmit, formState: { errors } } = useForm()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
 
-        const onSubmit = (data) => {
-            console.log(data)
+    const onSubmit = async (data) => {
+        console.log(data)
+        setSubmitting(true)
+        const response = await axiosInstance.post('/users/login', data)
+        console.log(response)
+        setSubmitting(false)
+        if (response.data.success) {
+            // localStorage.setItem('accessToken', response.data.token)
+            // localStorage.setItem('user', JSON.stringify(response.data.data))
+            dispatch(login(response.data.data))
+            navigate("/home")
         }
 
-        return (
-            <>
-                <div>Login</div>
-                <div className='w-full flex justify-center h-full mt-20'>
+        // const userData = JSON.parse(localStorage.getItem('user'))
+        
+
+    }
+    
+
+
+
+    return (
+        <>
+            <div className='w-full flex justify-center h-full mt-20'>
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center w-1/2 py-5 h-full border-2 rounded-lg border-gray-300 ">
                     <div className="flex flex-col items-center justify-center  w-3/4 ">
                         {/* Username Input */}
@@ -46,22 +69,16 @@
                             className={`mb-2`}
                             {...register('password', {
                                 required: 'Password is required',
-                                minLength: { value: 6, message: 'Password must be at least 6 characters' },
-                                maxLength: { value: 12, message: 'Password cannot exceed 12 characters' },
-                                validate: {
-                                    matchPattern: value =>
-                                        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{6,12}$/.test(value) || 'Password must contain at least one uppercase letter and one number',
-                                }
                             })}
                         />
                         {errors.password && <p className="text-red-500">{errors.password.message}</p>}
 
-                    <button type="submit" className='dark:border-white border-black border-2 py-2 px-5 rounded-md mt-6 w-full bg-yellow-500 text-black font-semibold text-md '>Submit</button>
+                        <button type="submit" className='dark:border-white border-black border-2 py-2 px-5 rounded-md mt-6 w-full bg-yellow-500 text-black font-semibold text-md '>{submitting ? "Submitting" : "Submit"}</button>
                     </div>
                 </form>
-                </div>
-            </>
-        )
-    }
+            </div>
+        </>
+    )
+}
 
-    export default Login
+export default Login
