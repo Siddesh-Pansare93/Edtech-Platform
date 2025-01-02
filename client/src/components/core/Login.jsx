@@ -36,7 +36,7 @@ function Login() {
     return (
         <>
             <div className='w-full flex justify-center h-full mt-20'>
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center w-1/2 py-5 h-full border-2 rounded-lg border-gray-300 ">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center justify-center w-1/2 py-5 h-full border-2 rounded-lg border-gray-300 bg-gray-800 backdrop-blur-xl backdrop-filter bg-opacity-30 max-w-xl shadow-xl ">
                     <div className="flex flex-col items-center justify-center  w-3/4 ">
                         {/* Username Input */}
                         <Input
