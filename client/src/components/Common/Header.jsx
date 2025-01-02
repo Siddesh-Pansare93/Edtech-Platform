@@ -2,22 +2,28 @@ import React, { useState } from 'react';
 import Logo from './Logo';
 import { NavLink } from 'react-router-dom';
 import { ModeToggle } from './ThemeSwitcher';
+import { useSelector } from 'react-redux';
+import LogoutBtn from './LogoutBtn';
 
 function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const isLoggedIn = useSelector(state => state.auth.status);
 
     const items = [
         {
             title: "Home",
             path: "/",
+        
         },
         {
             title: "Catalog",
             path: "/catalog",
+
         },
         {
             title: "About Us",
             path: "/about",
+
         },
         {
             title: "Contact Us",
@@ -25,11 +31,14 @@ function Header() {
         },
     ];
 
+
+    
+
     return (
         <header className={`w-full h-16 bg-transparent  sticky top-0 left-0 border-b-[1px] z-10 border-b-richblack-700 transition-all flex ${isMenuOpen ? 'flex-wrap' : 'flex-nowrap'} justify-between items-center px-4 sm:px-8`}>
             {/* Logo */}
             <div className={`w-full md:w-3/12 max-w-maxContent text-center ${isMenuOpen ? "hidden" : "block"} md:block`}>
-              <Logo />
+                <Logo />
             </div>
 
             {/* Hamburger Menu (visible on small screens) */}
@@ -58,11 +67,13 @@ function Header() {
             </div>
 
             {/* Login / Sign Up */}
+            {isLoggedIn ? <LogoutBtn />
+            : 
             <div className={`w-full md:w-3/12 flex gap-4 md:gap-10 justify-center flex-wrap ${isMenuOpen ? "block" : "hidden"} md:flex`}>
                 <NavLink to="/login" className="block py-2 md:py-0 font-semibold">LOGIN</NavLink>
                 <NavLink to="/signup" className="block py-2 md:py-0 font-semibold">SIGN UP</NavLink>
-            </div>
-            
+            </div>}
+
             <ModeToggle />
         </header>
     );
