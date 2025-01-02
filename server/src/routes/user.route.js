@@ -18,7 +18,7 @@ router.route("/register").post(
     handleUserRegistration
 )
 
-router.route("/login").get(handleUserLogin)
+router.route("/login").post(handleUserLogin)
 
 //Secure Routes
 router.route("/logout").post(verifyJwt , handleUserLogout)
