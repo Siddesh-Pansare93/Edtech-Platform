@@ -18,7 +18,7 @@ const SignUp = () => {
                 Sign UP Page
             </div>
             <div className='w-full flex justify-center h-full  '>
-                <form onSubmit={handleSubmit(onSubmit)} className='w-1/2 flex justify-center border-2 rounded-lg border-blue-300 dark:border-gray-300'>
+                <form onSubmit={handleSubmit(onSubmit)} className='w-1/2 flex justify-center border-2 rounded-lg border-gray-300'>
                     <div className="flex flex-col items-center justify-center  w-2/3  p-5  ">
                         <Input
                             name="username"
