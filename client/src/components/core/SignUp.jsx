@@ -13,25 +13,27 @@ const SignUp = ({ isOpen, onClose }) => {
 
     return (
         <>
-            {isOpen && <motion.div
+            <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                className={` h-full grid grid-cols-1 md:grid-cols-2  place-items-center z-50 bg-gradient-to-r from-blue-300 to-gray-300 dark:from-gray-900 dark:to-gray-800 `}
                 onClick={onClose}
             >
-                (
+
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", damping: 15 }}
-                    className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full"
+                    className="bg-transparent rounded-lg py-8 px-2 max-w-md w-full col-span-1 mt-20"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold">Sign Up</h2>
-                        <button
+                    <div className="flex flex-col justify-between items-center mb-6">
+                        <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-5">Join the millions learning to code with Skill Vulture for free</h2>
+                        <p>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-yellow-300 italic font-bold'> Education to future-proof your career. </span></p>
+
+                        {/* <button
                             onClick={onClose}
                             className="text-gray-500 hover:text-gray-700"
                         >
@@ -49,7 +51,7 @@ const SignUp = ({ isOpen, onClose }) => {
                                     d="M6 18L18 6M6 6l12 12"
                                 />
                             </svg>
-                        </button>
+                        </button> */}
                     </div>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
@@ -132,9 +134,20 @@ const SignUp = ({ isOpen, onClose }) => {
                         </motion.button>
                     </form>
                 </motion.div>
-                )
+                <motion.div
+                    className="md:w-1/2 col-span-1"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    <img
+                        src="https://img.freepik.com/free-vector/hand-coding-concept-illustration_114360-8413.jpg?t=st=1735915072~exp=1735918672~hmac=4c652d9685233d2403bffcccbfe2923d3361f16d8167d67b89242da746589740&w=740"
+                        alt="Students learning online"
+                        className="rounded-xl shadow-2xl"
+                    />
+                </motion.div>
             </motion.div>
-            }
+
         </>
     );
 };
