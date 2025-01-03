@@ -10,7 +10,7 @@ const Select = ({
     const id = useId()
   return (
     <div className='flex flex-col mb-4 w-full'>
-        {label && <label className='inline-block pl-1 mb-1 text-black dark:text-yellow-500 font-semibold' htmlFor={id}>
+        {label && <label className='inline-block pl-1 mb-1 text-black dark:text-white font-semibold' htmlFor={id}>
             {label}
         </label>}
 
