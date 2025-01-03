@@ -26,12 +26,13 @@ const SignUp = ({ isOpen, onClose }) => {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", damping: 15 }}
-                    className="bg-transparent rounded-lg py-8 px-2 max-w-md w-full col-span-1 mt-20"
+                    className="bg-transparent rounded-lg py-8 px-2 max-w-md w-full col-span-1 my-20 "
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex flex-col justify-between items-center mb-6">
                         <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-5">Join the millions learning to code with Skill Vulture for free</h2>
-                        <p>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-yellow-300 italic font-bold'> Education to future-proof your career. </span></p>
+                        <p  className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
+
 
                         {/* <button
                             onClick={onClose}
@@ -59,7 +60,7 @@ const SignUp = ({ isOpen, onClose }) => {
                     >
                         <Input
                             name="username"
-                            placeholder="Username"
+                            placeholder="Enter your username"
                             type="text"
                             label="Username"
                             {...register("username", { required: "Username is required" })}
@@ -98,6 +99,7 @@ const SignUp = ({ isOpen, onClose }) => {
                             })}
                             className="w-full"
                         />
+                        <div className="flex w-full gap-10">
                         <Select
                             label="Select Role"
                             name="role"
@@ -114,6 +116,7 @@ const SignUp = ({ isOpen, onClose }) => {
                             })}
                             className="w-full"
                         />
+                        </div>
                         <Input
                             type="file"
                             name="avatar"
@@ -122,13 +125,13 @@ const SignUp = ({ isOpen, onClose }) => {
                             {...register("avatar", {
                                 required: "Profile picture is required",
                             })}
-                            className="w-full"
+                            className="w-full mb-8"
                         />
                         <motion.button
                             type="submit"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+                            className="w-full bg-blue-600 dark:bg-yellow-400  text-black font-semibold py-2 rounded-md hover:bg-blue-700 transition-colors"
                         >
                             Submit
                         </motion.button>

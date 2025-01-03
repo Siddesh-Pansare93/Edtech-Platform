@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 
 
-function Login({ isOpen, onClose }) {
+function Login() {
     const [submitting, setSubmitting] = useState(false)
     const { register, handleSubmit, formState: { errors } } = useForm()
     const navigate = useNavigate()
@@ -25,7 +25,7 @@ function Login({ isOpen, onClose }) {
             // localStorage.setItem('accessToken', response.data.token)
             // localStorage.setItem('user', JSON.stringify(response.data.data))
             dispatch(login(response.data.data))
-            onClose()
+           
             navigate("/home")
         }
     }
@@ -37,21 +37,20 @@ function Login({ isOpen, onClose }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={` h-screen  grid grid-cols-1 md:grid-cols-2  place-items-center z-50 bg-gradient-to-r from-blue-300 to-gray-300 dark:from-gray-900 dark:to-gray-800 `}
-                onClick={onClose}
+                className={` h-full   grid grid-cols-1 md:grid-cols-2  place-items-center z-50 bg-gradient-to-r from-blue-300 to-gray-300 dark:from-gray-900 dark:to-gray-800 `}
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: 'spring', damping: 15 }}
-                    className="bg-transparent rounded-lg p-8 max-w-md w-full col-span-1"
+                    className="bg-transparent rounded-lg p-8 max-w-md w-full col-span-1 my-20 order-2"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex flex-col justify-center mb-6">
                         <h2 className="text-3xl font-bold text-black dark:text-white mb-5">Welcome Back</h2>
                         
-                        <p>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-yellow-300 italic font-semibold'> Education to future-proof your career. </span></p>
+                        <p  className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
                         {/* <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -115,7 +114,7 @@ function Login({ isOpen, onClose }) {
                     </form>
                 </motion.div>
                 <motion.div
-                    className="md:w-1/2 col-span-1"
+                    className="w-1/2 col-span-1"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
