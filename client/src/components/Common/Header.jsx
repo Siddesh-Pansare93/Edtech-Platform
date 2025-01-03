@@ -51,7 +51,7 @@ const Header = () => {
                     <nav className="hidden md:flex space-x-8">
                         {navItems.map((item) => (
                             <motion.div key={item.name} whileHover={{ scale: 1.05 }}>
-                                <NavLink to={item.href} className= {({isActive}) => ` hover:text-gray-900 transition-colors ${isActive ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
+                                <NavLink to={item.href} className={({ isActive }) => ` hover:text-gray-900 transition-colors ${isActive ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
                                     {item.name}
                                 </NavLink>
                             </motion.div>
@@ -62,13 +62,20 @@ const Header = () => {
                         {isLoggedIn ? <LogoutBtn />
                             :
                             <div className="flex space-x-4">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-                                    onClick={() => setIsLoginOpen(true)}
+                                <Link
+                                to={"/login"}
                                 >
-                                    Login
-                                </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                                        onClick={() => setIsLoginOpen(true)}
+                                    >
+                                        Login
+                                    </motion.button>
+                                </Link>
+                                <Link
+                                to={"/signup"}
+                                >
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -76,6 +83,7 @@ const Header = () => {
                                 >
                                     Sign Up
                                 </motion.button>
+                                </Link>
                             </div>}
 
                         <ModeToggle />
@@ -87,8 +95,8 @@ const Header = () => {
 
 
             </motion.header>
-            <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
-            <SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} />
+            {/* <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+            <SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} /> */}
         </>
     );
 };
