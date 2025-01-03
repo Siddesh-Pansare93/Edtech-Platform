@@ -5,8 +5,7 @@ import Login from './components/core/Login'
 import Footer from './components/Common/Footer'
 
 function Layout() {
-  const [isLoginOpen , setIsLoginOpen] = useState(false)
-  console.log(isLoginOpen)
+
 
   return (
     <>
