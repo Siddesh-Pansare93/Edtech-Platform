@@ -14,7 +14,7 @@ export default function Home() {
       <PopularCourses />
       <Testimonials />
       <HowItWorks />
-      <CallToAction />
+      <CallToActiohen />
     </>
   )
 }
