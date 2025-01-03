@@ -2,9 +2,8 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { logout } from '@/store/Features/authSlice'
 import { useNavigate } from 'react-router-dom'
-import Cookies from 'js-cookie'
 import axiosInstance from '@/utils/axiosInstance'
-
+import {motion} from 'framer-motion'
 
 
 const LogoutBtn = () => {
@@ -19,7 +18,7 @@ const LogoutBtn = () => {
         if (response.data.success) {
             localStorage.removeItem('token')
             dispatch(logout())
-            navigate("/login")  
+            navigate("/home")
 
         }
 
@@ -28,9 +27,13 @@ const LogoutBtn = () => {
     }
 
     return (
-        <div>
-            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg">Log Out</button>
-        </div>
+        <motion.button
+            whileHover={{ scale: 1.05 }}
+            className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+            onClick={handleLogout}
+        >
+            Logout
+        </motion.button>
     )
 }
 
