@@ -1,82 +1,96 @@
-import React, { useState } from 'react';
-import Logo from './Logo';
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import LoginModal from "../core/Login";
+import SignUpModal from "../core/SignUp";
 import { ModeToggle } from './ThemeSwitcher';
+// import { useTheme } from './ThemeSwitcher';
 import { useSelector } from 'react-redux';
-import LogoutBtn from './LogoutBtn';
+import LogoutBtn from "./LogoutBtn";
 
-function Header() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+const Header = () => {
+    const [isVisible, setIsVisible] = useState(true);
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
+    const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+    const { scrollY } = useScroll();
+
     const isLoggedIn = useSelector(state => state.auth.status);
 
-    const items = [
-        {
-            title: "Home",
-            path: "/",
-        
-        },
-        {
-            title: "Catalog",
-            path: "/catalog",
 
-        },
-        {
-            title: "About Us",
-            path: "/about",
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        const previous = scrollY.getPrevious();
+        if (latest > previous && latest > 150) {
+            setIsVisible(false);
+        } else {
+            setIsVisible(true);
+        }
+    });
 
-        },
-        {
-            title: "Contact Us",
-            path: "/contact",
-        },
+    const navItems = [
+        { name: "Home", href: "/" },
+        { name: "Courses", href: "/courses" },
+        { name: "About", href: "/about" },
+        { name: "Contact", href: "/contact" },
     ];
 
-
-    
-
     return (
-        <header className={`w-full h-16 bg-transparent  sticky top-0 left-0 border-b-[1px] z-10 border-b-richblack-700 transition-all flex ${isMenuOpen ? 'flex-wrap' : 'flex-nowrap'} justify-between items-center px-4 sm:px-8`}>
-            {/* Logo */}
-            <div className={`w-full md:w-3/12 max-w-maxContent text-center ${isMenuOpen ? "hidden" : "block"} md:block`}>
-                <Logo />
-            </div>
+        <>
+            <motion.header
+                className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md"
+                initial={{ y: 0 }}
+                animate={{ y: isVisible ? 0 : "-100%" }}
+                transition={{ duration: 0.3 }}
+            >
+                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+                    <Link to="/" className="flex items-center">
+                        {/* <img src="/logo.svg" alt="Skill Vulture Logo" width={40} height={40} /> */}
+                        <span className="ml-2 text-xl font-bold text-black  ">Skill Vulture</span>
+                    </Link>
 
-            {/* Hamburger Menu (visible on small screens) */}
-            <div className={`md:hidden flex items-center`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                {isMenuOpen ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={24} height={24} color={"#000000"} fill={"none"}>
-                        <path d="M14.9994 15L9 9M9.00064 15L15 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z" stroke="currentColor" strokeWidth="1.5" />
-                    </svg>
-                ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
-                        <path d="M4 5L20 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M4 12L20 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M4 19L20 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                )}
-            </div>
+                    <nav className="hidden md:flex space-x-8">
+                        {navItems.map((item) => (
+                            <motion.div key={item.name} whileHover={{ scale: 1.05 }}>
+                                <NavLink to={item.href} className= {({isActive}) => ` hover:text-gray-900 transition-colors ${isActive ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
+                                    {item.name}
+                                </NavLink>
+                            </motion.div>
+                        ))}
+                    </nav>
 
-            {/* Navigation Links */}
-            <div className={`w-full md:w-6/12 justify-center gap-4 md:gap-20 flex-wrap ${isMenuOpen ? "block" : "hidden"} md:flex`}>
-                {items.map((item, index) => (
-                    <div key={index} className="w-full md:w-auto text-center">
-                        <NavLink to={item.path} className="block py-2 md:py-0 font-semibold">{item.title}</NavLink>
+                    <div className="flex space-x-4">
+                        {isLoggedIn ? <LogoutBtn />
+                            :
+                            <div className="flex space-x-4">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                                    onClick={() => setIsLoginOpen(true)}
+                                >
+                                    Login
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    onClick={() => setIsSignUpOpen(true)}
+                                >
+                                    Sign Up
+                                </motion.button>
+                            </div>}
+
+                        <ModeToggle />
                     </div>
-                ))}
-            </div>
 
-            {/* Login / Sign Up */}
-            {isLoggedIn ? <LogoutBtn />
-            : 
-            <div className={`w-full md:w-3/12 flex gap-4 md:gap-10 justify-center flex-wrap ${isMenuOpen ? "block" : "hidden"} md:flex`}>
-                <NavLink to="/login" className="block py-2 md:py-0 font-semibold">LOGIN</NavLink>
-                <NavLink to="/signup" className="block py-2 md:py-0 font-semibold">SIGN UP</NavLink>
-            </div>}
+                </div>
 
-            <ModeToggle />
-        </header>
+
+
+
+            </motion.header>
+            <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+            <SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} />
+        </>
     );
-}
+};
 
 export default Header;
