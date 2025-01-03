@@ -16,7 +16,8 @@ const Select = ({
 
         <select
             ref={ref}
-            className={`w-full p-2 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-yellow-500 dark:focus:border-yellow-500 focus:border-primary-500 ${className}`}
+            className={`w-full p-3 placeholder:font-bold shadow-sm shadow-slate-200 border-gray-300 rounded-md text-black dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-500 dark:focus:border-yellow-500 focus:border-blue-500 ${className}`}
+
             {...props}
         >
             {options.map((option) => (
