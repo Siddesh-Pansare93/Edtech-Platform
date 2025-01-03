@@ -7,6 +7,7 @@ import { ModeToggle } from './ThemeSwitcher';
 // import { useTheme } from './ThemeSwitcher';
 import { useSelector } from 'react-redux';
 import LogoutBtn from "./LogoutBtn";
+import Logo from "./Logo";
 
 
 const Header = () => {
@@ -37,7 +38,7 @@ const Header = () => {
     return (
         <>
             <motion.header
-                className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md"
+                className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-800 dark:border-b-2 border-gray-300 border-opacity-40"
                 initial={{ y: 0 }}
                 animate={{ y: isVisible ? 0 : "-100%" }}
                 transition={{ duration: 0.3 }}
@@ -45,13 +46,13 @@ const Header = () => {
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                     <Link to="/" className="flex items-center">
                         {/* <img src="/logo.svg" alt="Skill Vulture Logo" width={40} height={40} /> */}
-                        <span className="ml-2 text-xl font-bold text-black  ">Skill Vulture</span>
+                        <span><Logo/></span>
                     </Link>
 
                     <nav className="hidden md:flex space-x-8">
                         {navItems.map((item) => (
                             <motion.div key={item.name} whileHover={{ scale: 1.05 }}>
-                                <NavLink to={item.href} className={({ isActive }) => ` hover:text-gray-900 transition-colors ${isActive ? 'text-blue-600 font-semibold' : 'text-gray-600'}`}>
+                                <NavLink to={item.href} className={({ isActive }) => ` hover:text-black text-black dark:text-gray-100 font-semibold transition-colors ${isActive ? 'text-blue-600 font-semibold' : 'text-gray-900'}`}>
                                     {item.name}
                                 </NavLink>
                             </motion.div>
@@ -67,7 +68,7 @@ const Header = () => {
                                 >
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
-                                        className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                                        className="px-4 py-2 text-gray-900 font-semibold dark:text-zinc-200 border border-black dark:border-white rounded-sm shadow-md  shadow-gray-800 dark:shadow-gray-500 hover:text-gray-900 transition-colors"
                                         onClick={() => setIsLoginOpen(true)}
                                     >
                                         Login

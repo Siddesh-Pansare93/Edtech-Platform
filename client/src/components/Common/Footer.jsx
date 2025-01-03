@@ -30,7 +30,7 @@ const Footer = () => {
   ]
 
   return (
-    (<footer className="bg-gray-100 py-12">
+    (<footer className="bg-gray-100 py-12 bg-gradient-to-r  dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-300 border-opacity-50 dark:border-gray-700 ">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {footerSections.map((section) => (
