@@ -20,7 +20,7 @@ function HomeAfterLogin() {
   useEffect(() => {
     // Check if user is authenticated, if not redirect to login page
     if (!loggedIn) {
-      navigate('/login')
+      navigate('/home')
       return 
     }
 
