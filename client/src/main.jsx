@@ -11,8 +11,8 @@ import { ThemeProvider } from './components/Common/ThemeProvider';
 import { Provider } from 'react-redux';
 import { store , persistor} from './store/store';
 import { PersistGate } from 'redux-persist/integration/react';
-import HomeAfterLogin from './components/HomeAfterLogin';
 import CourseDetails from './Pages/CourseDetails';
+import AllCoursesPage from './components/AllCourses';
 
 
 
@@ -25,6 +25,7 @@ const router = createBrowserRouter(
       <Route path="/home" element={<Home />} />
       <Route path="/login" element={<Login/>} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/courses" element={<AllCoursesPage />} />
       <Route path="/course-details/:id" element={<CourseDetails />} />
     </Route>
 
