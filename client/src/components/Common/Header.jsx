@@ -29,7 +29,7 @@ const Header = () => {
     });
 
     const navItems = [
-        { name: "Home", href: "/" },
+        { name: "Home", href: "/home" },
         { name: "Courses", href: "/courses" },
         { name: "About", href: "/about" },
         { name: "Contact", href: "/contact" },
@@ -38,7 +38,7 @@ const Header = () => {
     return (
         <>
             <motion.header
-                className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-800 dark:border-b-2 border-gray-300 border-opacity-40"
+                className="sticky top-0 left-0 z-50 right-0  bg-white shadow-md dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-800 dark:border-b-2 border-gray-300 border-opacity-40"
                 initial={{ y: 0 }}
                 animate={{ y: isVisible ? 0 : "-100%" }}
                 transition={{ duration: 0.3 }}
