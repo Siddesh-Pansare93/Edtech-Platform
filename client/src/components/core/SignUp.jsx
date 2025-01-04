@@ -1,14 +1,63 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Input from "../Common/Input";
 import Select from "../Common/Select";
 import { motion } from "framer-motion";
+import axiosInstance from "@/utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "@/store/Features/authSlice";
 
-const SignUp = ({ isOpen, onClose }) => {
+const SignUp = () => {
     const { register, handleSubmit } = useForm();
+    const [submitting, setSubmitting] = useState(false)
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         console.log(data);
+
+
+
+        try {
+            setSubmitting(true)
+
+            // FIRST WAY
+            // const formData = new FormData()
+
+            // for (const key in data) {
+            //     if (key === "avatar") {
+            //         formData.append(key, data[key][0])
+            //         continue
+            //     }
+            //     formData.append(key, data[key])
+            // }
+
+
+
+            //  SECOND WAY
+            const formattedData = {
+                ...data , 
+                avatar : data.avatar[0]
+            }
+
+            const response = await axiosInstance.post("/users/register", formattedData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+       
+            console.log(response.data);
+            if (response.data.success) {
+                dispatch(login(response.data.data))
+                setSubmitting(false)
+                navigate("/login")
+                alert("User created successfully");
+            }
+        } catch (error) {
+            alert(`Failed to Create User ${error.message}`)
+            setSubmitting(false)
+        }
     };
 
     return (
@@ -18,7 +67,6 @@ const SignUp = ({ isOpen, onClose }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className={` h-full grid grid-cols-1 md:grid-cols-2  place-items-center z-50 bg-gradient-to-r from-blue-300 to-gray-300 dark:from-gray-900 dark:to-gray-800 `}
-                onClick={onClose}
             >
 
                 <motion.div
@@ -31,7 +79,7 @@ const SignUp = ({ isOpen, onClose }) => {
                 >
                     <div className="flex flex-col justify-between items-center mb-6">
                         <h2 className="text-3xl font-bold tracking-tight text-black dark:text-white mb-5">Join the millions learning to code with Skill Vulture for free</h2>
-                        <p  className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
+                        <p className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
 
 
                         {/* <button
@@ -58,6 +106,14 @@ const SignUp = ({ isOpen, onClose }) => {
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4 flex flex-col items-center"
                     >
+                        <Input
+                            name="name"
+                            placeholder="Enter your name"
+                            type="text"
+                            label="Name"
+                            {...register("name", { required: "Name is required" })}
+                            className="w-full"
+                        />
                         <Input
                             name="username"
                             placeholder="Enter your username"
@@ -100,22 +156,22 @@ const SignUp = ({ isOpen, onClose }) => {
                             className="w-full"
                         />
                         <div className="flex w-full gap-10">
-                        <Select
-                            label="Select Role"
-                            name="role"
-                            options={["Student", "Instructor"]}
-                            {...register("role", { required: "Role is required" })}
-                            className="w-full"
-                        />
-                        <Select
-                            label="Select your Skill Level"
-                            name="skillLevel"
-                            options={["Beginner", "Intermediate", "Advanced"]}
-                            {...register("skillLevel", {
-                                required: "Skill level is required",
-                            })}
-                            className="w-full"
-                        />
+                            <Select
+                                label="Select Role"
+                                name="role"
+                                options={["Student", "Instructor"]}
+                                {...register("role", { required: "Role is required" })}
+                                className="w-full"
+                            />
+                            <Select
+                                label="Select your Skill Level"
+                                name="skillLevel"
+                                options={["Beginner", "Intermediate", "Advanced"]}
+                                {...register("skillLevel", {
+                                    required: "Skill level is required",
+                                })}
+                                className="w-full"
+                            />
                         </div>
                         <Input
                             type="file"
@@ -133,7 +189,7 @@ const SignUp = ({ isOpen, onClose }) => {
                             whileTap={{ scale: 0.95 }}
                             className="w-full bg-blue-600 dark:bg-yellow-400  text-black font-semibold py-2 rounded-md hover:bg-blue-700 transition-colors"
                         >
-                            Submit
+                            {submitting ? "Submitting" : "Submit"}
                         </motion.button>
                     </form>
                 </motion.div>
