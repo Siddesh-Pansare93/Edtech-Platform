@@ -1,5 +1,5 @@
 import express from 'express'
-import { purchaseCourse } from '../controllers/paymentAndEnrollment.controller.js'
+import { checkEnrollment, purchaseCourse } from '../controllers/paymentAndEnrollment.controller.js'
 import verifyJwt from '../middlewares/auth.middleware.js'
 
 
@@ -9,6 +9,7 @@ router.use(verifyJwt)
 
 
 router.route("/purchase").post(purchaseCourse)
+router.route("/check-enrollment/:courseId").post(checkEnrollment)
 
 
 export default router 
