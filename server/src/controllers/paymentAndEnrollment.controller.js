@@ -41,7 +41,7 @@ const purchaseCourse = asyncHandler(async (req, res) => {
             const isAlreadyEnrolled = await isEnrolled(course._id, user._id);
 
             if (isAlreadyEnrolled) {
-                throw new ApiError(400  , `You are Already Enrolled in the Course : ${course.title} `)
+                throw new ApiError(404  , `You are Already Enrolled in the Course : ${course.title} `)
             }
 
             //Checking Course is Paid or not 
@@ -80,7 +80,7 @@ const purchaseCourse = asyncHandler(async (req, res) => {
         res.status(200).json(new ApiResponse(200, null, "Free courses enrolled successfully"));
 
     } catch (error) {
-        res.status(400).json(new ApiResponse(400, null, `Error: ${error.message}`));
+        res.status(error.statusCode || 400).json(new ApiResponse(error.statusCode || 500, null, `Error: ${error.message}`));
     }
 });
 
@@ -118,7 +118,23 @@ const verifyAndEnroll = asyncHandler(async (req, res) => {
 
     }
 })
+
+
+const checkEnrollment = asyncHandler(async (req, res) => {
+    try {
+        const { courseId } = req.params
+        const userId = req.user._id
+        const enrollment = await isEnrolled(  courseId , userId )
+        if (enrollment) {
+            res.json({ enrolled: true })
+        }
+        res.json({ enrolled: false })
+    } catch (error) {
+        res.status(500).json(new ApiResponse(500, null, `ERROR : ${error.message}`))
+    }
+})
 export {
     purchaseCourse,
-    verifyAndEnroll
+    verifyAndEnroll,
+    checkEnrollment
 }
