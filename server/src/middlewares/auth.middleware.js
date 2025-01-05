@@ -35,7 +35,7 @@ const verifyJwt = async (req, res, next) => {
       res
          .status(400)
          .json(
-            new ApiResponse(400, `Unauthorized : ${error.message}`)
+            new ApiResponse(400, null ,  `Unauthorized : ${error.message}`)
          )
    }
 }
