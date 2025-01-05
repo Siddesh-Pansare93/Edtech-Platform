@@ -22,9 +22,9 @@ function Login() {
         console.log(response)
         setSubmitting(false)
         if (response.data.success) {
-            // localStorage.setItem('accessToken', response.data.token)
+            localStorage.setItem('accessToken', response.data.data.accessToken)
             // localStorage.setItem('user', JSON.stringify(response.data.data))
-            dispatch(login(response.data.data))
+            dispatch(login(response.data.data.user))
            
             navigate("/home")
         }
