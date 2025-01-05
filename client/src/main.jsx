@@ -13,6 +13,9 @@ import { store , persistor} from './store/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import CourseDetails from './Pages/CourseDetails';
 import AllCoursesPage from './components/AllCourses';
+import Payment from './components/Payment';
+import Verify from './components/Verify';
+import CourseContent from './Pages/CourseContent';
 
 
 
@@ -27,6 +30,9 @@ const router = createBrowserRouter(
       <Route path="/signup" element={<SignUp />} />
       <Route path="/courses" element={<AllCoursesPage />} />
       <Route path="/course-details/:id" element={<CourseDetails />} />
+      <Route path="/payment/:id" element={<Payment />} />
+      <Route path="/verify" element={<Verify />} />
+      <Route path="course-content/:id" element={<CourseContent/>} />
     </Route>
 
   )
