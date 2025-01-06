@@ -79,18 +79,18 @@ const CourseDetails = () => {
     }, [courseDetails]);
 
     return (
-        <div className="w-full h-full bg-gray-100 dark:bg-[#0f182d] grid grid-cols-1 md:grid-cols-3 place-items-center py-10 px-4 gap-6">
+        <div className="w-full h-full bg-gray-100 dark:bg-[#0f182d]  py-10 px-4 gap-6">
             {isLoading ? (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="text-center text-xl font-bold text-gray-600 dark:text-gray-200"
+                    className="text-center grid place-items-center text-xl font-bold text-gray-600 dark:text-gray-200 "
                 >
                     Loading...
                 </motion.div>
             ) : (
-                <>
+                <div className='grid grid-cols-1 md:grid-cols-3 place-items-center'>
                     {/* Main Content */}
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
@@ -228,7 +228,7 @@ const CourseDetails = () => {
                             </motion.button>
                         </motion.div>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );
