@@ -348,7 +348,9 @@ const getCourseContent = asyncHandler(async (req, res) => {
             }
         }
         )
-        
+        if(!courseContent?.length){
+            throw new ApiError(404, "Course Content Not Found OR These Course Dont Have any Content yet")
+        }
         res
             .status(200)
             .json(
@@ -359,7 +361,7 @@ const getCourseContent = asyncHandler(async (req, res) => {
         res
             .status(400)
             .json(
-                new ApiResponse(400, null, `ERROR while fetching Course Sections : ${error.message} `)
+                new ApiResponse(400, null, `Error while fetching Course Sections : ${error.message} `)
             )
     }
 })
