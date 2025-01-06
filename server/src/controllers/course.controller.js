@@ -339,6 +339,7 @@ const getCourseContent = asyncHandler(async (req, res) => {
                 title: section.title,
                 lessons: section.lessons.map((lesson) => {
                     return {
+                        lessonId : lesson._id , 
                         title: lesson.title,
                         content : lesson.content
                     }
