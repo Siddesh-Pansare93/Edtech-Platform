@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Progress } from "@/components/ui/progress"
-import { Video, ChevronDown, ChevronUp, CheckCircle, ArrowRightCircle, ArrowLeftCircle } from 'lucide-react'
+import { Video, ChevronDown, ChevronUp, CheckCircle, ArrowRightCircle, ArrowLeftCircle, AlertCircle } from 'lucide-react'
 
 function CourseContent() {
   const { id } = useParams()
@@ -12,12 +12,10 @@ function CourseContent() {
   const [content, setContent] = useState("")
   const [expandedSections, setExpandedSections] = useState({})
   const [courseDetails, setCourseDetails] = useState({})
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0) // Tracking the current section index
-  const [currentLessonIndex, setCurrentLessonIndex] = useState(0) // Tracking the current lesson index
-  const [completedLessons, setCompletedLessons] = useState([]) 
-  //  ^^^^ Tracking completed lessons -- isme lessons ki id push karenge (Abhi ke liye will connect it to backend later on )
-
-
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0)
+  const [completedLessons, setCompletedLessons] = useState([])
+  const [errorMessage, setErrorMessage] = useState("") // To store error message
 
   // Fetch the course content and details
   useEffect(() => {
@@ -28,22 +26,34 @@ function CourseContent() {
           axiosInstance.get(`/course/content/${id}`),
           axiosInstance.get(`/course/details/${id}`),
         ])
-
+  
         if (contentRes.data.success) {
           const contentData = contentRes.data.data
           setCourseContent(contentData)
-          console.log(contentData)
+  
           // Set the initial content to the first lesson
           if (contentData?.[0]?.lessons?.[0]?.content) {
             setContent(contentData[0].lessons[0].content)
           }
+        } else {
+          // Handle the error response if the success is false
+          setErrorMessage(contentRes.data.message || "Something went wrong!")
         }
-
+  
         if (detailsRes.data.success) {
           setCourseDetails(detailsRes.data.data)
         }
       } catch (error) {
         console.error(error)
+  
+        // Check if error has a response object
+        if (error.response) {
+          // If the error is from the server, display the error message
+          setErrorMessage(error.response.data.message || "An error occurred while fetching the data.")
+        } else {
+          // If the error is not from the server, it could be a network issue or other error
+          setErrorMessage("An unexpected error occurred.")
+        }
       } finally {
         setIsLoading(false)
       }
@@ -60,12 +70,10 @@ function CourseContent() {
 
   const handleLessonCompletion = () => {
     const currentLesson = courseContent[currentSectionIndex]?.lessons[currentLessonIndex]
-    console.log(currentLesson)
     setCompletedLessons((prev) => [
       ...prev, 
-      currentLesson?.lessonId
+      currentLesson?.title || currentLesson?.lessonId
     ])
-    console.log(completedLessons)
   }
 
   const goToNextLesson = () => {
@@ -102,9 +110,26 @@ function CourseContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-center h-screen text-2xl text-white bg-red-900"
+          className="flex items-center justify-center h-screen text-2xl text-white"
         >
           Loading...
+        </motion.div>
+      ) : errorMessage ? (
+        // Display error message if there's an error
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-center h-screen text-2xl"
+        >
+          <div className="bg-red-600 text-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <div className="flex items-center">
+              <span className="text-xl mr-3">
+                <AlertCircle className="text-white" />
+              </span>
+              <p className="font-semibold">{errorMessage}</p>
+            </div>
+          </div>
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -123,11 +148,14 @@ function CourseContent() {
                 key={content}
                 controls
                 className="w-full rounded-md max-h-[60vh] bg-black"
-                onEnded={handleLessonCompletion} // Video end hone pe completed lesson me lessonId chali jayegi
+                onEnded={handleLessonCompletion} // Mark lesson as completed when the video ends
               >
                 <source src={content} />
               </video>
-            </div>  
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mt-4">
+              {content ? `Currently viewing: ${content}` : "Select a lesson to start learning."}
+            </p>
             <div className="flex justify-between mt-4">
               <button
                 onClick={goToPreviousLesson}
@@ -188,14 +216,14 @@ function CourseContent() {
                     <div className="mt-4 space-y-2 border-l-2 border-blue-500 pl-4">
                       {section.lessons.map((lesson, index) => (
                         <div
-                          key={lesson.lessonId}
+                          key={lesson.title}
                           onClick={() => {
                             setCurrentLessonIndex(index)
                             setContent(lesson.content)
                           }}
                           className="flex items-center gap-2 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
                         >
-                          <CheckCircle key={completedLessons} className={`text-sm ${completedLessons[lesson?.lessonId] ? "text-green-500" : "text-gray-500"}`} />
+                          <CheckCircle className={`text-sm ${index === 0 ? "text-green-500" : "text-gray-500"}`} />
                           <span>{lesson.title}</span>
                         </div>
                       ))}
