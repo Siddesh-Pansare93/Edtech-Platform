@@ -90,13 +90,13 @@ const CourseDetails = () => {
                     Loading...
                 </motion.div>
             ) : (
-                <div className='grid grid-cols-1 md:grid-cols-3 place-items-center'>
+                <div className='grid grid-cols-1 lg:grid-cols-3 place-items-center'>
                     {/* Main Content */}
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
-                        className="w-full h-full col-span-2 md:order-1 order-2 bg-white dark:bg-[#0f182d] p-6 rounded-lg shadow-lg grid gap-6  "
+                        className="w-full h-full col-span-2 lg:order-1 order-2 bg-white dark:bg-[#0f182d] p-6 rounded-lg shadow-lg grid gap-6  "
                     >
                         {/* Title and Description */}
                         <div className="px-6">
@@ -168,7 +168,7 @@ const CourseDetails = () => {
 
 
                     {/* Sidebar */}
-                    <div className='order-1 md:order-2 h-full w-full  flex justify-center items-start '>
+                    <div className='order-1 lg:order-2 h-full w-full  flex justify-center items-start '>
                         <motion.div
                             initial={{ opacity: 0, x: 50 }}
                             animate={{ opacity: 1, x: 0 }}
