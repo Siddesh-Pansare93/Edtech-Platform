@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Progress } from "@/components/ui/progress"
-import { Video, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react'
+import { Video, ChevronDown, ChevronUp, CheckCircle, ArrowRightCircle, ArrowLeftCircle } from 'lucide-react'
 
 function CourseContent() {
   const { id } = useParams()
@@ -12,6 +12,12 @@ function CourseContent() {
   const [content, setContent] = useState("")
   const [expandedSections, setExpandedSections] = useState({})
   const [courseDetails, setCourseDetails] = useState({})
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0) // Tracking the current section index
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0) // Tracking the current lesson index
+  const [completedLessons, setCompletedLessons] = useState([]) 
+  //  ^^^^ Tracking completed lessons -- isme lessons ki id push karenge (Abhi ke liye will connect it to backend later on )
+
+
 
   // Fetch the course content and details
   useEffect(() => {
@@ -25,9 +31,9 @@ function CourseContent() {
 
         if (contentRes.data.success) {
           const contentData = contentRes.data.data
-          console.log(contentData)
           setCourseContent(contentData)
-
+          console.log(contentData)
+          // Set the initial content to the first lesson
           if (contentData?.[0]?.lessons?.[0]?.content) {
             setContent(contentData[0].lessons[0].content)
           }
@@ -45,10 +51,6 @@ function CourseContent() {
     fetchCourseData()
   }, [id])
 
-
-  //Section Open Close karenge ke liye 
-  //joh previous value rhegi usko toggle kar denge 
-
   const toggleSection = (sectionId) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -56,7 +58,42 @@ function CourseContent() {
     }))
   }
 
-  
+  const handleLessonCompletion = () => {
+    const currentLesson = courseContent[currentSectionIndex]?.lessons[currentLessonIndex]
+    console.log(currentLesson)
+    setCompletedLessons((prev) => [
+      ...prev, 
+      currentLesson?.lessonId
+    ])
+    console.log(completedLessons)
+  }
+
+  const goToNextLesson = () => {
+    const currentSection = courseContent[currentSectionIndex]
+    if (currentLessonIndex < currentSection?.lessons?.length - 1) {
+      setCurrentLessonIndex(currentLessonIndex + 1)
+      setContent(currentSection.lessons[currentLessonIndex + 1]?.content)
+    } else if (currentSectionIndex < courseContent.length - 1) {
+      // Move to the next section
+      setCurrentSectionIndex(currentSectionIndex + 1)
+      setCurrentLessonIndex(0)
+      setContent(courseContent[currentSectionIndex + 1]?.lessons[0]?.content)
+    }
+  }
+
+  const goToPreviousLesson = () => {
+    const currentSection = courseContent[currentSectionIndex]
+    if (currentLessonIndex > 0) {
+      setCurrentLessonIndex(currentLessonIndex - 1)
+      setContent(currentSection.lessons[currentLessonIndex - 1]?.content)
+    } else if (currentSectionIndex > 0) {
+      // Move to the previous section
+      setCurrentSectionIndex(currentSectionIndex - 1)
+      const prevSection = courseContent[currentSectionIndex - 1]
+      setCurrentLessonIndex(prevSection?.lessons?.length - 1)
+      setContent(prevSection?.lessons[prevSection?.lessons?.length - 1]?.content)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0f182d] py-6 px-4">
@@ -65,7 +102,7 @@ function CourseContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-center h-screen text-2xl text-white"
+          className="flex items-center justify-center h-screen text-2xl text-white bg-red-900"
         >
           Loading...
         </motion.div>
@@ -76,17 +113,40 @@ function CourseContent() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="col-span-2 p-6 rounded-lg "
+            className="col-span-2 bg-white dark:bg-[#1e293b] p-6 rounded-lg shadow-lg"
           >
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
               {courseDetails.title || "Course Title"}
             </h1>
             <div className="rounded-lg overflow-hidden shadow-md bg-gray-100 dark:bg-gray-800">
-              <video key={content} controls className="w-full rounded-md max-h-[60vh] bg-black">
+              <video
+                key={content}
+                controls
+                className="w-full rounded-md max-h-[60vh] bg-black"
+                onEnded={handleLessonCompletion} // Video end hone pe completed lesson me lessonId chali jayegi
+              >
                 <source src={content} />
               </video>
+            </div>  
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={goToPreviousLesson}
+                className="bg-gray-800 text-white p-2 rounded-full"
+                disabled={currentSectionIndex === 0 && currentLessonIndex === 0}
+              >
+                <ArrowLeftCircle />
+              </button>
+              <button
+                onClick={goToNextLesson}
+                className="bg-gray-800 text-white p-2 rounded-full"
+                disabled={
+                  currentSectionIndex === courseContent.length - 1 &&
+                  currentLessonIndex === courseContent[currentSectionIndex]?.lessons?.length - 1
+                }
+              >
+                <ArrowRightCircle />
+              </button>
             </div>
-            
           </motion.div>
 
           {/* Sidebar Section */}
@@ -103,7 +163,7 @@ function CourseContent() {
               <p className="font-semibold text-gray-600 dark:text-gray-400 mb-2">
                 Course Progress
               </p>
-              <Progress value={75} className="w-[90%]" />
+              <Progress value={75} className="w-full" />
             </div>
             <div className="space-y-4">
               {courseContent.map((section) => (
@@ -124,17 +184,18 @@ function CourseContent() {
                       <ChevronDown className="text-gray-600 dark:text-gray-400" />
                     )}
                   </div>
-
-                  {/* expandedSections me agar section id ki value true hai toh lesson ka div dikhega  */}
                   {expandedSections[section.sectionId] && (
                     <div className="mt-4 space-y-2 border-l-2 border-blue-500 pl-4">
                       {section.lessons.map((lesson, index) => (
                         <div
-                          key={index}
-                          onClick={() => setContent(lesson.content)}
+                          key={lesson.lessonId}
+                          onClick={() => {
+                            setCurrentLessonIndex(index)
+                            setContent(lesson.content)
+                          }}
                           className="flex items-center gap-2 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
                         >
-                          <CheckCircle className={`text-sm ${index === 0 ? "text-green-500" : "text-gray-500"}`} />
+                          <CheckCircle key={completedLessons} className={`text-sm ${completedLessons[lesson?.lessonId] ? "text-green-500" : "text-gray-500"}`} />
                           <span>{lesson.title}</span>
                         </div>
                       ))}
