@@ -16,6 +16,7 @@ import AllCoursesPage from './components/AllCourses';
 import Payment from './components/Payment';
 import Verify from './components/Verify';
 import CourseContent from './Pages/CourseContent';
+import CourseForm from './components/Common/CourseForm';
 
 
 
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
       <Route path="/payment/:id" element={<Payment />} />
       <Route path="/verify" element={<Verify />} />
       <Route path="course-content/:id" element={<CourseContent/>} />
+      <Route path='courseform' element={<CourseForm/>} />
     </Route>
 
   )
