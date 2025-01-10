@@ -18,19 +18,22 @@ const handleCourseCreation = asyncHandler(async (req, res) => {
 
 
     try {
-        const { title, description, paid, price, validity, curriculum } = req.body
+        const { title, description, paid, price, validity, curriculum , preRequisites} = req.body
 
         const instructor = req.user._id
-        let preRequisites = JSON.parse(req.body.preRequisites)
+        // let preRequisites = JSON.parse(req.body.preRequisites)
+        console.log(req.body)
 
-        if ([title, description, paid, price, validity, curriculum].some(field => !field || field.trim() === "")) {
+        if ([title, description, paid, price, validity].some(field => !field || field.trim() === "")) {
             throw new ApiError(400, "ALL fields are required")
         }
 
+        if(!curriculum?.length){
+            throw new ApiError(400 , "Curriculum is required")
+        }
 
 
-        const courseCurriculum = curriculum.split(",")
-        console.log(courseCurriculum)
+        
         const thumbnailLocalPath = req.files?.thumbnail[0].path
 
 
@@ -51,7 +54,7 @@ const handleCourseCreation = asyncHandler(async (req, res) => {
             preRequisites,
             thumbnail: thumbnail.url,
             instructor,
-            curriculum: courseCurriculum
+            curriculum
 
         })
 
