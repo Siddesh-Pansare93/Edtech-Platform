@@ -28,12 +28,12 @@ const handleCourseCreation = asyncHandler(async (req, res) => {
             throw new ApiError(400, "ALL fields are required")
         }
 
-        if(!curriculum?.length){
-            throw new ApiError(400 , "Curriculum is required")
+        if (!curriculum?.length) {
+            throw new ApiError(400, "Curriculum is required")
         }
 
 
-        
+
         const thumbnailLocalPath = req.files?.thumbnail[0].path
 
 
@@ -227,7 +227,12 @@ const getAllCourses = asyncHandler(async (req, res) => {
     try {
         const courses = await Course.find({
             isPublished: true
-        })
+        }).populate(
+            {
+                path: 'instructor',
+                select: 'name -_id'
+            }
+        )
 
         console.log(courses)
         if (!courses?.length) {
@@ -262,6 +267,7 @@ const getCourseDetails = asyncHandler(async (req, res) => {
                 select: 'name email'
             }
         ).select("-sections")
+
 
         if (!course) {
             throw new ApiError(404, "Course Not Found")
@@ -336,28 +342,29 @@ const getCourseContent = asyncHandler(async (req, res) => {
             throw new ApiError(404, "Course Content Not Found")
         }
 
+
         const courseContent = completeCourseDetails[0].content.map((section) => {
             return {
-                sectionId : section._id , 
+                sectionId: section._id,
                 title: section.title,
                 lessons: section.lessons.map((lesson) => {
                     return {
-                        lessonId : lesson._id , 
+                        lessonId: lesson._id,
                         title: lesson.title,
-                        content : lesson.content
+                        content: lesson.content
                     }
                 }
                 )
             }
         }
         )
-        if(!courseContent?.length){
+        if (!courseContent?.length) {
             throw new ApiError(404, "Course Content Not Found OR These Course Dont Have any Content yet")
         }
         res
             .status(200)
             .json(
-                new ApiResponse(200 , courseContent , "Course Content Fetched Successfully")
+                new ApiResponse(200, courseContent, "Course Content Fetched Successfully")
             )
 
     } catch (error) {
