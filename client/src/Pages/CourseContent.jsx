@@ -9,12 +9,13 @@ function CourseContent() {
   const { id } = useParams()
   const [courseContent, setCourseContent] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [content, setContent] = useState("")
+  const [videoContent, setVideoContent] = useState("")
   const [expandedSections, setExpandedSections] = useState({})
   const [courseDetails, setCourseDetails] = useState({})
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0)
   const [completedLessons, setCompletedLessons] = useState([])
+  const [courseProgress, setCourseProgress] = useState(0)
   const [errorMessage, setErrorMessage] = useState("") // To store error message
 
   // Fetch the course content and details
@@ -25,27 +26,29 @@ function CourseContent() {
         const [contentRes, detailsRes] = await Promise.all([
           axiosInstance.get(`/course/content/${id}`),
           axiosInstance.get(`/course/details/${id}`),
+          axiosInstance.get(`/progress/${id}`)
         ])
-  
+
+
         if (contentRes.data.success) {
           const contentData = contentRes.data.data
           setCourseContent(contentData)
-  
+
           // Set the initial content to the first lesson
           if (contentData?.[0]?.lessons?.[0]?.content) {
-            setContent(contentData[0].lessons[0].content)
+            setVideoContent(contentData[0].lessons[0].content)
           }
         } else {
           // Handle the error response if the success is false
           setErrorMessage(contentRes.data.message || "Something went wrong!")
         }
-  
+
         if (detailsRes.data.success) {
           setCourseDetails(detailsRes.data.data)
         }
       } catch (error) {
         console.error(error)
-  
+
         // Check if error has a response object
         if (error.response) {
           // If the error is from the server, display the error message
@@ -58,7 +61,23 @@ function CourseContent() {
         setIsLoading(false)
       }
     }
+
+    const fetchCourseProgress = async () => {
+      try {
+        const progressRes = await axiosInstance.get(`/progress/${id}`)
+        console.log(progressRes.data.data)
+        if (progressRes.data.success) {
+          setCourseProgress(progressRes.data.data)
+        }else{
+          setErrorMessage(progressRes.data.message || "Something went wrong!")
+        }
+      } catch (error) {
+        setErrorMessage("Something Went Wrong While fetching Progress")
+
+      }
+    }
     fetchCourseData()
+    fetchCourseProgress() 
   }, [id])
 
   const toggleSection = (sectionId) => {
@@ -68,10 +87,15 @@ function CourseContent() {
     }))
   }
 
-  const handleLessonCompletion = () => {
+  const handleLessonCompletion = async () => {
     const currentLesson = courseContent[currentSectionIndex]?.lessons[currentLessonIndex]
+    console.log(currentLesson)
+
+    const response = await axiosInstance.get(`/progress/${id}/${currentLesson.lessonId}`)
+    console.log(response)
+
     setCompletedLessons((prev) => [
-      ...prev, 
+      ...prev,
       currentLesson?.title || currentLesson?.lessonId
     ])
   }
@@ -145,17 +169,14 @@ function CourseContent() {
             </h1>
             <div className="rounded-lg overflow-hidden shadow-md bg-gray-100 dark:bg-gray-800">
               <video
-                key={content}
+                key={videoContent}
                 controls
                 className="w-full rounded-md max-h-[60vh] bg-black"
                 onEnded={handleLessonCompletion} // Mark lesson as completed when the video ends
               >
-                <source src={content} />
+                <source src={videoContent} />
               </video>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mt-4">
-              {content ? `Currently viewing: ${content}` : "Select a lesson to start learning."}
-            </p>
             <div className="flex justify-between mt-4">
               <button
                 onClick={goToPreviousLesson}
@@ -189,9 +210,9 @@ function CourseContent() {
             </h2>
             <div className="mb-6">
               <p className="font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                Course Progress
+                Course Progress - {courseProgress}% completed
               </p>
-              <Progress value={75} className="w-full" />
+              <Progress value={courseProgress} className="w-full" />
             </div>
             <div className="space-y-4">
               {courseContent.map((section) => (
