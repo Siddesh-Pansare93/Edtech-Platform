@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react'
 const Hero = () => {
   return (
     <section className="bg-gradient-to-b from-blue-100 to-white dark:from-gray-900 dark:to-gray-800 py-20 ">
-      <div className="container mx-auto px-10 pt-32 ">
+      <div className="container mx-auto px-10 pt-28">
         <div className="flex flex-col md:flex-row items-center md:justify-evenly ">
           <motion.div
             className="md:w-1/2 mb-10 md:mb-0"
