@@ -104,12 +104,12 @@ function CourseContent() {
     const currentSection = courseContent[currentSectionIndex]
     if (currentLessonIndex < currentSection?.lessons?.length - 1) {
       setCurrentLessonIndex(currentLessonIndex + 1)
-      setContent(currentSection.lessons[currentLessonIndex + 1]?.content)
+      setVideoContent(currentSection.lessons[currentLessonIndex + 1]?.content)
     } else if (currentSectionIndex < courseContent.length - 1) {
       // Move to the next section
       setCurrentSectionIndex(currentSectionIndex + 1)
       setCurrentLessonIndex(0)
-      setContent(courseContent[currentSectionIndex + 1]?.lessons[0]?.content)
+      setVideoContent(courseContent[currentSectionIndex + 1]?.lessons[0]?.content)
     }
   }
 
@@ -117,13 +117,13 @@ function CourseContent() {
     const currentSection = courseContent[currentSectionIndex]
     if (currentLessonIndex > 0) {
       setCurrentLessonIndex(currentLessonIndex - 1)
-      setContent(currentSection.lessons[currentLessonIndex - 1]?.content)
+      setVideoContent(currentSection.lessons[currentLessonIndex - 1]?.content)
     } else if (currentSectionIndex > 0) {
       // Move to the previous section
       setCurrentSectionIndex(currentSectionIndex - 1)
       const prevSection = courseContent[currentSectionIndex - 1]
       setCurrentLessonIndex(prevSection?.lessons?.length - 1)
-      setContent(prevSection?.lessons[prevSection?.lessons?.length - 1]?.content)
+      setVideoContent(prevSection?.lessons[prevSection?.lessons?.length - 1]?.content)
     }
   }
 
@@ -240,7 +240,7 @@ function CourseContent() {
                           key={lesson.title}
                           onClick={() => {
                             setCurrentLessonIndex(index)
-                            setContent(lesson.content)
+                            setVideoContent(lesson.content)
                           }}
                           className="flex items-center gap-2 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
                         >
