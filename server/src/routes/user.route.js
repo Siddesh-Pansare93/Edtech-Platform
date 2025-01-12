@@ -4,7 +4,8 @@ import { handleUserLogin,
     handleUserRegistration ,
     handleChangePassword ,   
     handleUpdateUserProfile , 
-    handleUserLogout ,
+    handleUserLogout, 
+    getEnrolledCourses,
 } from "../controllers/user.controller.js"
 import verifyJwt from "../middlewares/auth.middleware.js"
 import { verifyAndEnroll } from "../controllers/paymentAndEnrollment.controller.js"
@@ -32,6 +33,7 @@ router.route("/change-password").patch(verifyJwt , handleChangePassword)
 // router.route("/delete-user").delete(handleDeleteUser)
 
 router.route("/verify-payment").post(verifyJwt , verifyAndEnroll)
+router.route("/enrolled-courses").get(verifyJwt , getEnrolledCourses)
 
 
 

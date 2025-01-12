@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.util.js"
 import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
 import logger from "../logger.js"
 import { User } from '../models/user.model.js'
+import { Enrollment } from "../models/enrollment.model.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -219,7 +220,32 @@ const handleChangePassword = asyncHandler(async (req, res) => {
 
 const getEnrolledCourses = asyncHandler(async(req,  res )=>{
 
-    // logic goes here
+    try {
+        const enrolledCourses = await Enrollment.find({
+            user: req.user._id
+        }).select("course").populate({
+            path: "course",
+            populate : {
+                path: "instructor",
+                select : "name"
+            }
+        })
+        
+        if(!enrolledCourses.length){
+            throw new ApiError(400 , "Enrolled Courses Not Found")
+        }
+
+        res
+        .status(200)
+        .json(new ApiResponse(200, enrolledCourses, "Enrolled Courses Retrieved Successfully"))
+    } catch (error) {
+        console.log(error.message)
+        res
+        .status(400)
+        .json(
+            new ApiResponse(400, null, "Error fetching enrolled courses")
+        )
+    }
 })
 
 
@@ -232,5 +258,6 @@ export {
     handleUserLogin,
     handleUserLogout,
     handleUpdateUserProfile,
-    handleChangePassword
+    handleChangePassword,
+    getEnrolledCourses
 }
