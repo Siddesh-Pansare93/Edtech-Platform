@@ -88,7 +88,7 @@ const getCourseProgress = asyncHandler(async (req, res) => {
             return res
                 .status(200)
                 .json(
-                    new ApiResponse(200, { progress: 0 }, "Course Progress fetched Successfully")
+                    new ApiResponse(200, 0, "Course Progress fetched Successfully")
                 )
         }
 
@@ -149,6 +149,7 @@ const getCourseProgress = asyncHandler(async (req, res) => {
 
         const completedLessons = courseProgress?.completedVideos?.length
         const progress = (completedLessons / totalLessons) * 100
+        // console.log(progress)
 
         return res
             .status(200)
