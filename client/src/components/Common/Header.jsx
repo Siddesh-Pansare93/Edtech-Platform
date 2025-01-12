@@ -4,6 +4,7 @@ import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useSelector } from "react-redux";
 import Logo from "./Logo";
 import {ModeToggle} from "./ThemeSwitcher";
+import LogoutBtn from "./LogoutBtn";
 
 const Header = () => {
     const [isVisible, setIsVisible] = useState(true);
@@ -127,11 +128,12 @@ const Header = () => {
                                     >
                                         Profile
                                     </Link>
+                                    <LogoutBtn/>
                                     <Link
-                                        to="/logout"
+                                        to="/enrolled-courses"
                                         className="block px-4 py-2 hover:bg-gray-400 dark:hover:bg-gray-600"
                                     >
-                                        Logout
+                                        Enrolled Courses
                                     </Link>
                                 </div>
                             )}
