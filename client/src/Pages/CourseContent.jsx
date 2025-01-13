@@ -29,7 +29,6 @@ function CourseContent() {
           axiosInstance.get(`/progress/${id}`)
         ])
 
-
         if (contentRes.data.success) {
           const contentData = contentRes.data.data
           setCourseContent(contentData)
@@ -62,23 +61,23 @@ function CourseContent() {
       }
     }
 
-    const fetchCourseProgress = async () => {
-      try {
-        const progressRes = await axiosInstance.get(`/progress/${id}`)
-        console.log(progressRes.data.data)
-        if (progressRes.data.success) {
-          setCourseProgress(progressRes.data.data)
-        }else{
-          setErrorMessage(progressRes.data.message || "Something went wrong!")
-        }
-      } catch (error) {
-        setErrorMessage("Something Went Wrong While fetching Progress")
-
-      }
-    }
     fetchCourseData()
-    fetchCourseProgress() 
+    fetchCourseProgress()
   }, [id])
+
+
+  const fetchCourseProgress = async () => {
+    try {
+      const progressRes = await axiosInstance.get(`/progress/${id}`)
+      if (progressRes.data.success) {
+        setCourseProgress(progressRes.data.data)
+      } else {
+        setErrorMessage(progressRes.data.message || "Something went wrong!")
+      }
+    } catch (error) {
+      setErrorMessage("Something Went Wrong While fetching Progress")
+    }
+  }
 
   const toggleSection = (sectionId) => {
     setExpandedSections((prev) => ({
@@ -88,20 +87,29 @@ function CourseContent() {
   }
 
   const handleLessonCompletion = async () => {
-    const currentLesson = courseContent[currentSectionIndex]?.lessons[currentLessonIndex]
-    console.log(currentLesson)
+    try {
+      const currentSection = courseContent[currentSectionIndex]
+      const currentLesson = currentSection?.lessons?.[currentLessonIndex]
 
-    const response = await axiosInstance.get(`/progress/${id}/${currentLesson.lessonId}`)
-    console.log(response)
+      if (!currentLesson) {
+        console.error("No lesson found at current index.")
+        return
+      }
 
-    setCompletedLessons((prev) => [
-      ...prev,
-      currentLesson?.title || currentLesson?.lessonId
-    ])
+      //Updating course in backend/db
+      await axiosInstance.get(`/progress/${id}/${currentLesson.lessonId}`)
+
+      fetchCourseProgress()
+
+    } catch (error) {
+      console.error("Error updating lesson progress:", error)
+    }
   }
 
   const goToNextLesson = () => {
     const currentSection = courseContent[currentSectionIndex]
+    if (!currentSection) return
+
     if (currentLessonIndex < currentSection?.lessons?.length - 1) {
       setCurrentLessonIndex(currentLessonIndex + 1)
       setVideoContent(currentSection.lessons[currentLessonIndex + 1]?.content)
@@ -115,6 +123,8 @@ function CourseContent() {
 
   const goToPreviousLesson = () => {
     const currentSection = courseContent[currentSectionIndex]
+    if (!currentSection) return
+
     if (currentLessonIndex > 0) {
       setCurrentLessonIndex(currentLessonIndex - 1)
       setVideoContent(currentSection.lessons[currentLessonIndex - 1]?.content)
@@ -139,7 +149,6 @@ function CourseContent() {
           Loading...
         </motion.div>
       ) : errorMessage ? (
-        // Display error message if there's an error
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -215,7 +224,7 @@ function CourseContent() {
               <Progress value={courseProgress} className="w-full" />
             </div>
             <div className="space-y-4">
-              {courseContent.map((section) => (
+              {courseContent.map((section, sectionIndex) => (
                 <div
                   key={section.sectionId}
                   className="bg-gray-100 dark:bg-[#0f182d] p-4 rounded-md shadow-md"
@@ -237,8 +246,9 @@ function CourseContent() {
                     <div className="mt-4 space-y-2 border-l-2 border-blue-500 pl-4">
                       {section.lessons.map((lesson, index) => (
                         <div
-                          key={lesson.title}
+                          key={lesson.lessonId}
                           onClick={() => {
+                            setCurrentSectionIndex(sectionIndex)
                             setCurrentLessonIndex(index)
                             setVideoContent(lesson.content)
                           }}
