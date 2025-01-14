@@ -6,6 +6,7 @@ import { handleUserLogin,
     handleUpdateUserProfile , 
     handleUserLogout, 
     getEnrolledCourses,
+    getYourCreatedCourses,
 } from "../controllers/user.controller.js"
 import verifyJwt from "../middlewares/auth.middleware.js"
 import { verifyAndEnroll } from "../controllers/paymentAndEnrollment.controller.js"
@@ -34,6 +35,8 @@ router.route("/change-password").patch(verifyJwt , handleChangePassword)
 
 router.route("/verify-payment").post(verifyJwt , verifyAndEnroll)
 router.route("/enrolled-courses").get(verifyJwt , getEnrolledCourses)
+router.route("/your-courses").get(verifyJwt , getYourCreatedCourses)
+
 
 
 
