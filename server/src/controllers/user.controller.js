@@ -4,6 +4,7 @@ import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
 import logger from "../logger.js"
 import { User } from '../models/user.model.js'
 import { Enrollment } from "../models/enrollment.model.js"
+import { Course } from "../models/course.model.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -78,9 +79,9 @@ const handleUserRegistration = asyncHandler(async (req, res) => {
                 new ApiResponse(200, createdUser, "User Registered Successfully")
             )
     } catch (error) {
-       res
-       .status(error.statusCode || 400)
-       .json(new ApiResponse(error.statusCode || 500, null, `Failed to register User ${error.message}`))
+        res
+            .status(error.statusCode || 400)
+            .json(new ApiResponse(error.statusCode || 500, null, `Failed to register User ${error.message}`))
     }
 })
 
@@ -126,7 +127,7 @@ const handleUserLogin = asyncHandler(async (req, res) => {
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
         .json(
-            new ApiResponse(200, {user : loggedInUser , accessToken , refreshToken }, "User Logged In Successfully")
+            new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User Logged In Successfully")
         )
 
 })
@@ -163,13 +164,13 @@ const handleUpdateUserProfile = asyncHandler(async (req, res) => {
     const updatedUser = User.findByIdAndUpdate(
         req.user._id,
         {
-           $set : {
-            name,
-            email,
-            username,
-            skillLevel,
-            role
-           }
+            $set: {
+                name,
+                email,
+                username,
+                skillLevel,
+                role
+            }
         },
         {
             new: true
@@ -218,33 +219,98 @@ const handleChangePassword = asyncHandler(async (req, res) => {
 })
 
 
-const getEnrolledCourses = asyncHandler(async(req,  res )=>{
+const getEnrolledCourses = asyncHandler(async (req, res) => {
 
     try {
         const enrolledCourses = await Enrollment.find({
             user: req.user._id
         }).select("course").populate({
             path: "course",
-            populate : {
+            populate: {
                 path: "instructor",
-                select : "name"
+                select: "name"
             }
         })
-        
-        if(!enrolledCourses.length){
-            throw new ApiError(400 , "Enrolled Courses Not Found")
+
+        if (!enrolledCourses.length) {
+            throw new ApiError(400, "Enrolled Courses Not Found")
         }
 
         res
-        .status(200)
-        .json(new ApiResponse(200, enrolledCourses, "Enrolled Courses Retrieved Successfully"))
+            .status(200)
+            .json(new ApiResponse(200, enrolledCourses, "Enrolled Courses Retrieved Successfully"))
     } catch (error) {
         console.log(error.message)
         res
-        .status(400)
-        .json(
-            new ApiResponse(400, null, "Error fetching enrolled courses")
-        )
+            .status(400)
+            .json(
+                new ApiResponse(400, null, "Error fetching enrolled courses")
+            )
+    }
+})
+
+
+const getYourCreatedCourses = asyncHandler(async (req, res) => {
+    try {
+        // const createdCourses = await Course.find({
+        //     instructor: req.user._id
+        // }).populate({
+        //     path: "instructor",
+        //     select: "name"
+        // })
+        // if (!createdCourses.length) {
+        //     throw new ApiError(400, "Created Courses Not Found")
+        // }
+
+        // const enrolledStudents = await Enrollment.find({
+        //     course: createdCourses.map(course => course._id)
+        // })
+
+        // // console.log(enrolledStudents)
+        // const totalEnrolledStudents = enrolledStudents.length
+        // console.log(totalEnrolledStudents)
+
+
+        const instructorCourses = await Course.aggregate([
+            {
+                $match : {
+                    instructor : req.user._id
+                }
+            },
+            {
+                $lookup : {
+                    from : "enrollments",
+                    localField : "_id",
+                    foreignField : "course",
+                    as : "enrolledStudents",
+                }
+            },
+            {
+                $addFields : {
+                    enrolledStudents : { $size : "$enrolledStudents" }
+                }
+            },
+        ])
+
+        const courseStatics = {
+            totalCourses: instructorCourses.length,
+            totalEnrolledStudents: instructorCourses.reduce((acc, course) => acc + course.enrolledStudents, 0),
+            instructorCourses
+        }
+
+        res
+            .status(200)
+            .json(new ApiResponse(200, courseStatics, "Created Courses Retrieved Successfully"))
+
+
+
+
+    } catch (error) {
+        console.log(error)
+        return res
+            .status(400)
+            .json(new ApiResponse(400, null, "Error fetching created courses"))
+
     }
 })
 
@@ -259,5 +325,6 @@ export {
     handleUserLogout,
     handleUpdateUserProfile,
     handleChangePassword,
-    getEnrolledCourses
+    getEnrolledCourses ,
+    getYourCreatedCourses
 }
