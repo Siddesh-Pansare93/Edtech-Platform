@@ -18,6 +18,7 @@ import Verify from './components/Verify';
 import CourseContent from './Pages/CourseContent';
 import CourseForm from './components/Common/CourseForm';
 import EnrolledCourses from './Pages/EnrolledCourses';
+import InstructorDashboard from './Pages/YourCourses';
 
 
 
@@ -37,6 +38,7 @@ const router = createBrowserRouter(
       <Route path="/course-content/:id" element={<CourseContent/>} />
       <Route path='/courseform' element={<CourseForm/>} />
       <Route path='/enrolled-courses' element={<EnrolledCourses/>} />
+      <Route path='/instructor/dashboard' element={<InstructorDashboard/>} />
     </Route>
 
   )
