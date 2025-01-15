@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useSelector } from "react-redux";
 import Logo from "./Logo";
-import {ModeToggle} from "./ThemeSwitcher";
+import { ModeToggle } from "./ThemeSwitcher";
 import LogoutBtn from "./LogoutBtn";
 
 const Header = () => {
@@ -13,6 +13,7 @@ const Header = () => {
     const { scrollY } = useScroll();
 
     const isLoggedIn = useSelector((state) => state.auth.status);
+    const userData = useSelector(state => state.auth.userData)
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         const previous = scrollY.getPrevious();
@@ -63,8 +64,7 @@ const Header = () => {
                             key={item.name}
                             to={item.href}
                             className={({ isActive }) =>
-                                `font-medium transition-transform transform hover:scale-105 ${
-                                    isActive ? "underline underline-offset-4 text-indigo-600 dark:text-indigo-400" : "text-gray-700 dark:text-gray-300"
+                                `font-medium transition-transform transform hover:scale-105 ${isActive ? "underline underline-offset-4 text-indigo-600 dark:text-indigo-400" : "text-gray-700 dark:text-gray-300"
                                 }`
                             }
                         >
@@ -128,13 +128,22 @@ const Header = () => {
                                     >
                                         Profile
                                     </Link>
-                                    <LogoutBtn/>
+                                    <LogoutBtn />
                                     <Link
                                         to="/enrolled-courses"
                                         className="block px-4 py-2 hover:bg-gray-400 dark:hover:bg-gray-600"
                                     >
                                         Enrolled Courses
                                     </Link>
+
+                                    {userData.role === "instructor" &&
+                                        <Link
+                                            to="/instructor/dashboard"
+                                            className="block px-4 py-2 hover:bg-gray-400 dark:hover:bg-gray-600"
+                                        >
+                                            Dashboard
+                                        </Link>}
+
                                 </div>
                             )}
                         </div>
