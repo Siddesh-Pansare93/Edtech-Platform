@@ -19,6 +19,7 @@ import CourseContent from './Pages/CourseContent';
 import CourseForm from './components/Common/CourseForm';
 import EnrolledCourses from './Pages/EnrolledCourses';
 import InstructorDashboard from './Pages/YourCourses';
+import AboutPage from './Pages/About';
 
 
 
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
 
     <Route path="/" element={<Layout />}>
       <Route path="/home" element={<Home />} />
+      <Route path ="/about" element={<AboutPage/>} />
       <Route path="/login" element={<Login/>} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/courses" element={<AllCoursesPage />} />
