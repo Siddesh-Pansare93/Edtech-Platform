@@ -20,6 +20,7 @@ import CourseForm from './components/Common/CourseForm';
 import EnrolledCourses from './Pages/EnrolledCourses';
 import InstructorDashboard from './Pages/InstructorDashboard';
 import AboutPage from './Pages/About';
+import StudentDashboard from './Pages/StudentDashboard';
 
 
 
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
       <Route path='/courseform' element={<CourseForm/>} />
       <Route path='/enrolled-courses' element={<EnrolledCourses/>} />
       <Route path='/instructor/dashboard' element={<InstructorDashboard/>} />
+      <Route path='/student/dashboard' element={<StudentDashboard/>} />
     </Route>
 
   )
