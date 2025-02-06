@@ -12,7 +12,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 // Import icons
 import { AcademicCapIcon, UserGroupIcon, BookOpenIcon, ChevronRightIcon, MagnifyingGlassIcon , AdjustmentsHorizontalIcon , ArrowUpIcon , Bars3Icon  } from '@heroicons/react/24/outline';
 
-function YourCourses() {
+function InstructorDashboard() {
   const [coursesData, setCoursesData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -282,5 +282,5 @@ function YourCourses() {
   );
 }
 
-export default YourCourses;
+export default InstructorDashboard;
 
