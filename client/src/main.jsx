@@ -18,7 +18,7 @@ import Verify from './components/Verify';
 import CourseContent from './Pages/CourseContent';
 import CourseForm from './components/Common/CourseForm';
 import EnrolledCourses from './Pages/EnrolledCourses';
-import InstructorDashboard from './Pages/YourCourses';
+import InstructorDashboard from './Pages/InstructorDashboard';
 import AboutPage from './Pages/About';
 
 
