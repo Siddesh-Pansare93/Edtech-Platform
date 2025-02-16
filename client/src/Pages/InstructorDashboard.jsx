@@ -160,7 +160,10 @@ function InstructorDashboard() {
                       onChange={(e) => setSelectedCategory(e.target.value)}
                     >
                       {categories.map(category => (
-                        <option key={category} value={category}>{category}</option>
+
+                        //*******Note  : yaha pe Math.random ko change karna hai to actual categories ********
+
+                        <option key={Math.random()} value={category}>{category}</option>
                       ))}
                     </select>
                     <AdjustmentsHorizontalIcon  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -194,6 +197,7 @@ function InstructorDashboard() {
                     >
                       <Carousel showThumbs={false} showStatus={false}>
                         <div>
+                          {console.log(course)}
                           <img src={course.thumbnail || "/placeholder.svg"} alt={course.title} className="w-full h-48 object-cover" />
                         </div>
                       </Carousel>
@@ -207,7 +211,7 @@ function InstructorDashboard() {
                           </div>
                         </div>
                         <div className="mt-4">
-                          <Link href="#" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                          <Link to={`course-settings/${course._id}`} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                             View Course <ChevronRightIcon className="ml-2 w-4 h-4" />
                           </Link>
                         </div>
