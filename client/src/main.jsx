@@ -43,7 +43,7 @@ const router = createBrowserRouter(
       <Route path='/courseform' element={<CourseForm/>} />
       <Route path='/enrolled-courses' element={<EnrolledCourses/>} />
       <Route path='/instructor/dashboard' element={<InstructorDashboard/>} />
-      <Route path='/course-settings/:courseId' element={<CourseSettings/>} />
+      <Route path='/instructor/dashboard/course-settings/:courseId' element={<CourseSettings/>} />
       <Route path='/student/dashboard' element={<StudentDashboard/>} />
     </Route>
 
