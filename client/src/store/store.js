@@ -26,6 +26,7 @@ const store = configureStore({
             ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
           },
         }),
+      devTools : true ,
 });
 
 let persistor = persistStore(store)
