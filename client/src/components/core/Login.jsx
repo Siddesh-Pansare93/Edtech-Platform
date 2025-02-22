@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { login } from '@/store/Features/authSlice'
 import { motion, AnimatePresence } from 'framer-motion'
+import { setCreatedCourses, setEnrolledCourses } from '@/store/Features/courseSlice'
 
 
 
@@ -25,7 +26,17 @@ function Login() {
             localStorage.setItem('accessToken', response.data.data.accessToken)
             // localStorage.setItem('user', JSON.stringify(response.data.data))
             dispatch(login(response.data.data.user))
-           
+
+
+            if (response.data.data.user.role ==="student") {
+                const EnrolledCourseResponse = await axiosInstance.get("/users/enrolled-courses");
+                console.log("enrooled " , EnrolledCourseResponse)
+                const courses = EnrolledCourseResponse.data.data;
+                dispatch(setEnrolledCourses(courses));
+            }else if(response.data.data.user.role ==="instructor"){
+                const CreatedCoursesResponse = await axiosInstance.get("/users/your-courses");
+                dispatch(setCreatedCourses(CreatedCoursesResponse.data.data));
+            }
             navigate("/home")
         }
     }
@@ -49,8 +60,8 @@ function Login() {
                 >
                     <div className="flex flex-col justify-center mb-6">
                         <h2 className="text-3xl font-bold text-black dark:text-white mb-5">Welcome Back</h2>
-                        
-                        <p  className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
+
+                        <p className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
                         {/* <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
