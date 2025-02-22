@@ -52,7 +52,7 @@ const Header = () => {
         >
             <div className="container mx-auto px-6 py-4 flex items-center justify-between">
                 {/* Logo */}
-                <Link to="/" className="flex items-center space-x-2">
+                <Link to="/home" className="flex items-center space-x-2">
                     <Logo className="w-10 h-10" />
                     {/* <span className="text-xl font-bold">EduPlatform</span> */}
                 </Link>
