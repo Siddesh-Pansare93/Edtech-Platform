@@ -31,42 +31,11 @@ import {
   Pie,
   Cell,
 } from "recharts"
+import EnrolledCourses from "./EnrolledCourses"
+import { useSelector } from "react-redux"
 
 // Dummy data
-const courses = [
-  {
-    id: 1,
-    title: "Introduction to React",
-    instructor: "John Doe",
-    progress: 75,
-    rating: 4.5,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 2,
-    title: "Advanced JavaScript",
-    instructor: "Jane Smith",
-    progress: 50,
-    rating: 4.8,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 3,
-    title: "UI/UX Design Principles",
-    instructor: "Alice Johnson",
-    progress: 30,
-    rating: 4.2,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 4,
-    title: "Data Structures and Algorithms",
-    instructor: "Bob Wilson",
-    progress: 60,
-    rating: 4.7,
-    image: "https://via.placeholder.com/150",
-  },
-]
+
 
 const assignments = [
   { id: 1, name: "React Project", course: "Introduction to React", dueDate: "2025-03-15", status: "Pending" },
@@ -125,18 +94,11 @@ const StudentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeSection, setActiveSection] = useState("dashboard")
   const [courseView, setCourseView] = useState("grid")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filteredCourses, setFilteredCourses] = useState(courses)
 
-  useEffect(() => {
-    setFilteredCourses(
-      courses.filter(
-        (course) =>
-          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.instructor.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    )
-  }, [searchTerm])
+  const userData = useSelector(state => state.auth.userData)
+  const courses  = useSelector(state => state.course.enrolledCourses)
+    
+ 
 
   const toggleDarkMode = () => setDarkMode(!darkMode)
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
@@ -194,7 +156,7 @@ const StudentDashboard = () => {
         transition={{ duration: 0.5 }}
         className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
       >
-        <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Welcome back, John Doe!</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Welcome back, {userData.name}!</h2>
         <p className="text-gray-600 dark:text-gray-300">
           "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice." -
           Brian Herbert
@@ -269,65 +231,7 @@ const StudentDashboard = () => {
   )
 
   const CoursesSection = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Courses</h2>
-        <div className="flex items-center space-x-4">
-          <input
-            type="text"
-            placeholder="Search courses..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          />
-          <button
-            onClick={() => setCourseView(courseView === "grid" ? "list" : "grid")}
-            className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-          >
-            {courseView === "grid" ? <FiList /> : <FiGrid />}
-          </button>
-        </div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className={courseView === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}
-      >
-        {filteredCourses.map((course) => (
-          <motion.div
-            key={course.id}
-            whileHover={{ scale: 1.03 }}
-            className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden ${
-              courseView === "list" ? "flex" : ""
-            }`}
-          >
-            <img
-              src={course.image || "/placeholder.svg"}
-              alt={course.title}
-              className={courseView === "list" ? "w-48 h-auto object-cover" : "w-full h-48 object-cover"}
-            />
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">{course.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-2">Instructor: {course.instructor}</p>
-              <div className="flex items-center mb-2">
-                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${course.progress}%` }}></div>
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{course.progress}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-yellow-500">★ {course.rating}</span>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
-                  Continue
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
+    <EnrolledCourses/>
   )
 
   const AssignmentsSection = () => (
@@ -492,11 +396,11 @@ const StudentDashboard = () => {
         className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
       >
         <div className="flex items-center mb-6">
-          <img src="https://via.placeholder.com/150" alt="Profile" className="w-24 h-24 rounded-full mr-6" />
+          <img src={userData.avatar} alt="Profile" className="w-24 h-24 rounded-full mr-6" />
           <div>
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white">John Doe</h3>
-            <p className="text-gray-600 dark:text-gray-300">johndoe@example.com</p>
-            <p className="text-gray-500 dark:text-gray-400">Student ID: 12345678</p>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{userData.name}</h3>
+            <p className="text-gray-600 dark:text-gray-300">{userData.email}</p>
+            <p className="text-gray-500 dark:text-gray-400">{}</p>
           </div>
         </div>
         <div className="space-y-4">
@@ -504,7 +408,7 @@ const StudentDashboard = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
             <input
               type="text"
-              value="John Doe"
+              value={userData.name}
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -512,17 +416,17 @@ const StudentDashboard = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
             <input
               type="email"
-              value="johndoe@example.com"
+              value={userData.email}
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            {/* <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
             <input
               type="password"
               value="********"
               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+            /> */}
           </div>
         </div>
         <div className="mt-6 flex justify-between items-center">
@@ -547,28 +451,18 @@ const StudentDashboard = () => {
   )
 
   return (
+    // userData.role === "student" &&
     <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
       <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
         <SidebarNavigation />
         <div className={`transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-0"}`}>
-          <header className="bg-white dark:bg-gray-800 shadow-md">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="bg-white   dark:bg-gray-800 rounded-xl  w-fit">
+            <div className=" px-4 py-4 flex justify-between items-center">
               <button onClick={toggleSidebar} className="text-gray-500 dark:text-gray-300 focus:outline-none">
                 {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-              </button>
-              <div className="flex items-center space-x-4">
-                <button onClick={toggleDarkMode} className="text-gray-500 dark:text-gray-300 focus:outline-none">
-                  {darkMode ? <FiSun size={24} /> : <FiMoon size={24} />}
-                </button>
-                <div className="relative">
-                  <FiBell size={24} className="text-gray-500 dark:text-gray-300 cursor-pointer" />
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                    3
-                  </span>
-                </div>
-              </div>
+              </button> 
             </div>
-          </header>
+          </div>
           <main className="container mx-auto px-4 py-8">
             <AnimatePresence mode="wait">
               {activeSection === "dashboard" && <DashboardOverview key="dashboard" />}
