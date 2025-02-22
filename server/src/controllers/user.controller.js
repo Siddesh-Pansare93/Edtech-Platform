@@ -233,9 +233,8 @@ const getEnrolledCourses = asyncHandler(async (req, res) => {
         })
 
         if (!enrolledCourses.length) {
-            throw new ApiError(400, "Enrolled Courses Not Found")
+            new ApiResponse(400,{} , "Not Found any Enrolled Courses")
         }
-
         res
             .status(200)
             .json(new ApiResponse(200, enrolledCourses, "Enrolled Courses Retrieved Successfully"))

@@ -30,7 +30,6 @@ function Login() {
 
             if (response.data.data.user.role ==="student") {
                 const EnrolledCourseResponse = await axiosInstance.get("/users/enrolled-courses");
-                console.log("enrooled " , EnrolledCourseResponse)
                 const courses = EnrolledCourseResponse.data.data;
                 dispatch(setEnrolledCourses(courses));
             }else if(response.data.data.user.role ==="instructor"){
