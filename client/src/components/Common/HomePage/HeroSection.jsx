@@ -2,9 +2,11 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 
 const Hero = () => {
+  const navigate = useNavigate()
   return (
     <section className="bg-gradient-to-b from-blue-100 to-white dark:from-gray-900 dark:to-gray-800 py-20 ">
       <div className="container mx-auto px-10 pt-28">
@@ -25,6 +27,7 @@ const Hero = () => {
               className="bg-blue-600 text-white px-8 py-3 rounded-md text-lg font-semibold flex items-center space-x-2 hover:bg-blue-700 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={()=>navigate("/courses")}
             >
               <span>Explore Courses</span>
               <ArrowRight size={20} />
