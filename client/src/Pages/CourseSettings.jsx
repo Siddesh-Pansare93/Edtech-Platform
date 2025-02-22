@@ -1,38 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "@/utils/axiosInstance";
 import Input from "@/components/Common/Input";
 
 // Import icons
-import {
-  AcademicCapIcon,
-  UserGroupIcon,
-  BookOpenIcon,
-  ChevronRightIcon,
-  Bars3Icon,
-} from "@heroicons/react/24/outline";
+import { ChevronDown } from "lucide-react"
 
-function InstructorDashboard() {
+function CourseSettings() {
   const [coursesData, setCoursesData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [sections, setSections] = useState([]);
+  const [expandedLessons, setExpandedLessons] = useState({})
+
+  const { courseId } = useParams("courseId")
+
+  console.log(courseId)
+
+
 
   useEffect(() => {
-    const fetchInstructorCourses = async () => {
-      try {
-        const response = await axiosInstance.get("/users/your-courses");
-        setCoursesData(response.data.data);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const fetchCourseDetails = async () => {
+      const courseDetails = await axiosInstance.get(`/course/content/${courseId}`)
+      console.log(courseDetails.data.data)
+      setCoursesData(courseDetails.data.data)
 
-    fetchInstructorCourses();
+      setIsLoading(false)
+    }
+    fetchCourseDetails()
   }, []);
+
+  console.log(expandedLessons)
+
+
+  const toggleLesson = (lessonId) => {
+    setExpandedLessons((prev) => ({ ...prev, [lessonId]: !prev[lessonId] }))
+  }
+
 
   // Add New Section
   const addSection = () => {
@@ -99,46 +104,18 @@ function InstructorDashboard() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-b from-gray-200 to-blue-200">
       {/* Sidebar */}
-      <motion.div
-        initial={{ x: -250 }}
-        animate={{ x: isSidebarOpen ? 0 : -250 }}
-        transition={{ type: "spring", stiffness: 100 }}
-        className="fixed md:static w-64 h-full bg-white z-20"
-      >
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-        </div>
-        <nav className="mt-6">
-          <Link className="flex items-center px-6 py-3 text-gray-700 bg-gray-200">
-            <AcademicCapIcon className="w-5 h-5 mr-3" />
-            Your Courses
-          </Link>
-          <Link className="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100">
-            <UserGroupIcon className="w-5 h-5 mr-3" />
-            Students
-          </Link>
-          <Link
-            to={"/courseform"}
-            className="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100"
-          >
-            <BookOpenIcon className="w-5 h-5 mr-3" />
-            Create Course
-          </Link>
-        </nav>
-      </motion.div>
+
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <header className="bg-white shadow">
+        <header className="">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <h1 className="text-3xl font-bold text-gray-900">
               Manage Sections & Lessons
             </h1>
-            <button className="md:hidden" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-              <Bars3Icon className="w-6 h-6" />
-            </button>
+
           </div>
         </header>
 
@@ -148,6 +125,53 @@ function InstructorDashboard() {
           ) : (
             <div>
               {/* Sections */}
+              {
+                coursesData.map(section => (
+                  <div key={section.sectionId} className="bg-white shadow-md rounded-md p-4 mb-2">
+                    <div className="w-full ">
+                      <div className="flex justify-between">
+                        <h2 className="text-lg font-bold text-gray-900">{section.title}</h2>
+                        <div className="flex gap-4">
+                          <button
+                            className="bg-blue-200  hover:bg-blue-300 hover:shadow-sm hover:shadow-black border-2 border-gray-500 rounded-md p-2 text-black font-bold py-2 ">
+                            Add Lesson
+                          </button>
+                          <button
+                            className="bg-yellow-200  hover:bg-yellow-300 hover:shadow-sm hover:shadow-black border-2 border-gray-500 rounded-md p-2 text-black font-bold py-2 ">
+                            Edit
+                          </button>
+                        </div>
+                      </div>
+                      {section.lessons.map(lesson => (
+                        <div
+                          key={lesson.lessonId}
+                          className="shadow-md p-4 shadow-black m-3 rounded-lg"
+                          onClick={() => toggleLesson(lesson.lessonId)}
+                        >
+
+                          <h3 className="text-lg font-bold text-gray-900 mb-3">{lesson.title}</h3>
+
+                          {expandedLessons[lesson.lessonId] && (
+                            <>
+                              <video className="mb-3">
+                                <source src={lesson.content} />
+                              </video>
+                              <div className="flex gap-10">
+                                <button className="text-black font-bold border-2 p-2 rounded-md bg-green-300"> {lesson.content ? "Edit Content" : "Add Content"} </button>
+                                {lesson.content && <button className="text-black font-bold border-2 p-2 rounded-md bg-red-300" onClick={()=>alert("hello")}> Delete Lesson </button>}
+
+                              </div>
+                            </>
+                          )}
+
+                        </div>
+                      ))}
+
+                    </div>
+                  </div>
+                ))
+              }
+
               {sections.map((section, sectionIndex) => (
                 <div key={sectionIndex} className="bg-white p-4 rounded-lg shadow-md mb-4">
                   <h3 className="text-lg font-semibold text-gray-800">Section {sectionIndex + 1}</h3>
@@ -208,4 +232,4 @@ function InstructorDashboard() {
   );
 }
 
-export default InstructorDashboard;
+export default CourseSettings;
