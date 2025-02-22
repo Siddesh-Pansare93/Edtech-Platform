@@ -129,20 +129,21 @@ const Header = () => {
                                         Profile
                                     </Link>
                                     <LogoutBtn />
-                                    <Link
+                                    {/* <Link
                                         to="/enrolled-courses"
                                         className="block px-4 py-2 hover:bg-gray-400 dark:hover:bg-gray-600"
                                     >
                                         Enrolled Courses
-                                    </Link>
+                                    </Link> */}
 
-                                    {userData.role === "instructor" &&
+                                    {/* {userData.role === "instructor" && */}
                                         <Link
-                                            to="/instructor/dashboard"
+                                            to={userData.role === "student" ? "student/dashboard" : "instructor/dashboard"}
                                             className="block px-4 py-2 hover:bg-gray-400 dark:hover:bg-gray-600"
                                         >
                                             Dashboard
-                                        </Link>}
+                                        </Link>
+                                        {/* } */}
 
                                 </div>
                             )}
