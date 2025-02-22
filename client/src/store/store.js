@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./Features/authSlice";
+import courseReducer from "./Features/courseSlice"
 import { persistStore , persistReducer } from "redux-persist";
 import storage from 'redux-persist/lib/storage'
 import { combineReducers } from "redux";
 
 const rootReducer = combineReducers({
-    auth : authReducer
+    auth : authReducer , 
+    course : courseReducer
 })
 
 
