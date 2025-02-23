@@ -52,10 +52,8 @@ function CourseSettings() {
   };
 
   // Add New Lesson to a Section
-  const addLesson = (sectionIndex) => {
-    const updatedSections = [...sections];
-    updatedSections[sectionIndex].lessons.push({ title: "", video: null });
-    setSections(updatedSections);
+  const addLesson = (sectionId) => {
+    const response  = axiosInstance.post(`/${courseId}/${sectionId}/add`)
   };
 
   // Handle Lesson Title Change
@@ -104,7 +102,7 @@ function CourseSettings() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-b from-gray-200 to-blue-200">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-b from-gray-100 to-blue-200">
       {/* Sidebar */}
 
 
@@ -133,7 +131,9 @@ function CourseSettings() {
                         <h2 className="text-lg font-bold text-gray-900">{section.title}</h2>
                         <div className="flex gap-4">
                           <button
-                            className="bg-blue-200  hover:bg-blue-300 hover:shadow-sm hover:shadow-black border-2 border-gray-500 rounded-md p-2 text-black font-bold py-2 ">
+                            className="bg-blue-200  hover:bg-blue-300 hover:shadow-sm hover:shadow-black border-2 border-gray-500 rounded-md p-2 text-black font-bold py-2 "
+                            onClick={() => addLesson(section.sectionId)}
+                            >
                             Add Lesson
                           </button>
                           <button
@@ -179,11 +179,11 @@ function CourseSettings() {
                     type="text"
                     placeholder="Section Name"
                     value={section.name}
-                    onChange={(e) => handleSectionNameChange(sectionIndex, e.target.value)}
+                    onChange={(e) => handleSectionNameChange(section.sectionId, e.target.value)}
                     className="w-full p-2 border rounded-md mt-2"
                   />
                   <button
-                    onClick={() => addLesson(sectionIndex)}
+                    onClick={() => addLesson(section.sectionId)}
                     className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                   >
                     Add Lesson
@@ -197,13 +197,13 @@ function CourseSettings() {
                         type="text"
                         placeholder="Lesson Title"
                         value={lesson.title}
-                        onChange={(e) => handleLessonTitleChange(sectionIndex, lessonIndex, e.target.value)}
+                        onChange={(e) => handleLessonTitleChange(section.sectionId, lesson.lessonId, e.target.value)}
                         className="w-full p-2 border rounded-md mt-2"
                       />
                       <input
                         type="file"
                         accept="video/*"
-                        onChange={(e) => handleVideoUpload(sectionIndex, lessonIndex, e.target.files[0])}
+                        onChange={(e) => handleVideoUpload(section.sectionId, lesson.lessonId, e.target.files[0])}
                         className="w-full mt-2"
                       />
                     </div>
