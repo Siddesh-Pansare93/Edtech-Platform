@@ -10,14 +10,16 @@ router.use(verifyJwt)
 router.use(isInstructorOrAdmin)
 
 router.route("/:courseId/:sectionId/add").post(
-    upload.single("content" , {
-        resource_type : "auto"
+    upload.single("content", {
+        resource_type: "auto"
     }),
     handleAddLesson
 )
 
 router.route("/:courseId/:sectionId/:lessonId")
-    .patch(handleUpdateLesson)
+    .patch(upload.single("content", {
+        resource_type: "auto"
+    }), handleUpdateLesson)
     .delete(handleDeleteLesson)
 
 export default router
