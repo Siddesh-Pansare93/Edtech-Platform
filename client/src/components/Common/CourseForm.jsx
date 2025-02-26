@@ -206,7 +206,7 @@ const CourseForm = () => {
                 <input
                   type="checkbox"
                   checked={isPaid}
-                  onChange={() => setIsPaid(!isPaid)}
+                  onClick={() => setIsPaid(!isPaid)}
                   className="toggle"
                   {...register("paid" , {
                     required: "This field is required",
