@@ -12,7 +12,7 @@ const lessonSchema =  new mongoose.Schema({
     } , 
     order : {
         type : Number ,             // Order of the lesson in the section
-        required : true
+        // required : true
     }
 } , {timestamps : true })
 
