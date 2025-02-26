@@ -10,7 +10,7 @@ dotenv.config({
 
 import app from "./app.js";
 import connectToDb from './db/index.js';
-import { cloudinaryConfig } from './utils/uploadOnCloudinary.js';
+import { cloudinaryConfig } from './utils/Cloudinary.js';
 
 
 

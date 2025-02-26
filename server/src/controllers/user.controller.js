@@ -1,6 +1,6 @@
 import { ApiError } from "../utils/ApiError.util.js"
 import { ApiResponse } from "../utils/ApiResponse.util.js"
-import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
+import { uploadOnCloudinary } from "../utils/Cloudinary.js"
 import logger from "../logger.js"
 import { User } from '../models/user.model.js'
 import { Enrollment } from "../models/enrollment.model.js"

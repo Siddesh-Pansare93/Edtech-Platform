@@ -2,7 +2,7 @@ import { Course } from '../models/course.model.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiResponse } from "../utils/ApiResponse.util.js"
 import { ApiError } from "../utils/ApiError.util.js"
-import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
+import { uploadOnCloudinary } from "../utils/Cloudinary.js"
 import { isValidObjectId } from 'mongoose'
 import mongoose from 'mongoose'
 import { isEnrolled } from '../utils/isEnrolled.util.js'
