@@ -6,11 +6,12 @@ import { Course } from "../models/course.model.js"
 import { Section } from "../models/section.model.js"
 import { ApiResponse } from "../utils/ApiResponse.util.js"
 import { isInstructorOfCourse } from "../utils/isInstructor.util.js"
-import { uploadOnCloudinary } from "../utils/uploadOnCloudinary.js"
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/Cloudinary.js"
 
 
 const handleAddLesson = asyncHandler(async (req, res) => {
     try {
+        console.log("request received")
         const { courseId, sectionId } = req.params
         const { title, content, order } = req.body
 
@@ -24,18 +25,19 @@ const handleAddLesson = asyncHandler(async (req, res) => {
             throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
         }
 
-        console.log(req.body)
+        console.log("body : ", req.body)
+        console.log("content: ", req.file)
 
-        if (!title  || !order) {
+        if (!title) {
             throw new ApiError(400, "Please fill in all fields")
         }
 
         const course = await Course.findById(courseId)
-        
+
         if (!course?.sections?.includes(sectionId)) {
             throw new ApiError(400, "This Course doesn't contain this section")
         }
-        
+
         const section = await Section.findById(sectionId)
 
         if (!section) {
@@ -52,7 +54,7 @@ const handleAddLesson = asyncHandler(async (req, res) => {
 
         const createdLesson = await Lesson.create({
             title,
-            content : videoUrl,
+            content: videoUrl,
             order,
         })
 
@@ -93,53 +95,68 @@ const handleAddLesson = asyncHandler(async (req, res) => {
 
 const handleUpdateLesson = asyncHandler(async (req, res) => {
     try {
-        const { courseId, lessonId } = req.params
-        const { title,  order } = req.body
+        const { courseId, lessonId } = req.params;
+        const { title } = req.body;
 
-        if (!(isValidObjectId(lessonId) || isValidObjectId(courseId))) {
-            throw new ApiError(400, "Invalid Lesson Id")
+        if (!(isValidObjectId(lessonId) && isValidObjectId(courseId))) {
+            throw new ApiError(400, "Invalid Lesson Id or Course Id");
         }
 
-        //Checking if user is instructor of this course
-        const isInstructor = isInstructorOfCourse(courseId)
+        // Checking if user is the instructor of this course
+        const isInstructor = isInstructorOfCourse(courseId);
         if (!isInstructor) {
-            throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
+            throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action");
         }
 
-
-
-        if (!title ||  !order) {
-            throw new ApiError(400, "Please fill all fields")
+        // Fetch the existing lesson
+        const existingLesson = await Lesson.findById(lessonId);
+        if (!existingLesson) {
+            throw new ApiError(404, "Lesson not found");
         }
 
-        //updatind lesson
+        let videoUrl = existingLesson.content; // Keep existing video if no new one is uploaded
+
+        if (req.file) {
+            const videoLocalPath = req.file?.path;
+
+            // Upload new video to Cloudinary
+            const videoResponseFromCloudinary = await uploadOnCloudinary(videoLocalPath);
+            if (!videoResponseFromCloudinary) {
+                throw new ApiError(500, "Failed to upload new video to Cloudinary");
+            }
+
+            videoUrl = videoResponseFromCloudinary.secure_url;
+
+            // Delete previous video from Cloudinary
+            if (existingLesson.content) {
+                await deleteFromCloudinary(existingLesson.content);
+            }
+        }
+
+        // Update lesson in DB
         const updatedLesson = await Lesson.findByIdAndUpdate(
             lessonId,
             {
                 $set: {
                     title,
-                    order
+                    content: videoUrl
                 }
             },
             {
                 new: true
             }
-        )
+        );
 
         if (!updatedLesson) {
-            throw new ApiError(404, "error occured while updating lesson in database")
+            throw new ApiError(500, "Error updating lesson in database");
         }
 
-        res
-            .status(200)
-            .json(new ApiResponse(200, updatedLesson, "Lesson Updated Successfully"))
-
+        res.status(200).json(new ApiResponse(200, updatedLesson, "Lesson Updated Successfully"));
     } catch (error) {
-        res
-            .status(400)
-            .json(new ApiResponse(400, `ERROR : Failed to update Lesson : ${error.message}`))
+        res.status(400).json(new ApiResponse(400, `ERROR: Failed to update Lesson: ${error.message}`));
     }
-})
+});
+
 
 
 const handleDeleteLesson = asyncHandler(async (req, res) => {
@@ -157,6 +174,11 @@ const handleDeleteLesson = asyncHandler(async (req, res) => {
             throw new ApiError(403, "You are not the instructor of this course hence not allowed to perform action")
         }
 
+        const lessonTobeDeleted = await Lesson.findById(lessonId)
+       
+        
+        const cloudinaryResponse = await deleteFromCloudinary(lessonTobeDeleted?.content)
+        console.log(cloudinaryResponse)
         //deleting lesson document
         const deletedLesson = await Lesson.findByIdAndDelete(lessonId)
         if (!deletedLesson) {
