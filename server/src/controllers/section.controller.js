@@ -60,7 +60,7 @@ const handleCreateSection = asyncHandler(async (req, res) => {
 
 const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
     try {
-        const { title, order } = req.body
+        const { title} = req.body
         const { courseId, sectionId } = req.params
 
         if (!(isValidObjectId(courseId) || isValidObjectId(sectionId))) {
@@ -86,7 +86,7 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
             {
                 $set: {
                     title,
-                    order
+                  
                 }
             },
             {
@@ -102,7 +102,7 @@ const handleUpdateSectionDetails = asyncHandler(async (req, res) => {
 
         res
             .status(200)
-            .json(new ApiResponse(200, createdSection, "Section created successfully"))
+            .json(new ApiResponse(200, updatedSection , "Section created successfully"))
 
 
     } catch (error) {
