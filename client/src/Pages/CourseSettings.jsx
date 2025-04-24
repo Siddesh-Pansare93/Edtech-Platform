@@ -402,6 +402,7 @@
                                       onClick={() => {
                                         setCurrentSectionId(section.sectionId)
                                         setCurrentLessonId(lesson.lessonId)
+                                        console.log(lesson.lessonId)
                                         setLessonData({
                                           title: lesson.title,
                                           content: lesson.content,

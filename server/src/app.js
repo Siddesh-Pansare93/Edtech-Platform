@@ -55,6 +55,11 @@ app.use(
 
   //Routes 
 
+  app.get("/" , (req , res)=> {
+    res.send("OHHO! : Server is running 🥳")
+})
+
+
   import userRouter from './routes/user.route.js'
   import courseRouter from "./routes/course.route.js"
   import sectionRouter from "./routes/section.route.js"

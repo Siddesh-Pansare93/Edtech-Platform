@@ -1,7 +1,5 @@
 import React from 'react'
 import { Route, Routes } from "react-router-dom";
-import Payment from './components/Payment'
-import Verify from './components/verify'
 import { Button } from './components/ui/button';
 
 
