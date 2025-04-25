@@ -17,7 +17,7 @@ const app = express()
 // MiddleWares
 
 app.use(cors({
-    origin : "*", 
+    origin : "https://skillvultures.vercel.app", 
     credentials :  true 
 }))
 
