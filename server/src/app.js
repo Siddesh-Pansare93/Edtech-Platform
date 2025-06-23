@@ -17,16 +17,17 @@ const app = express()
 // MiddleWares
 
 app.use(cors({
-    origin : process.env.CORS_ORIGIN , 
-    credentials :  true 
+    origin: ['http://localhost:5173' , , 'https://skillvultures.vercel.app'], // Specify your frontend URL exactly
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }))
-
 
 app.use(cookieParser())
 
 
 app.use(express.json())
-app.use(express.urlencoded())
+app.use(express.urlencoded({ extended: true }))
 app.use(express.static("public"))
 // app.use(morgan('dev'))
 

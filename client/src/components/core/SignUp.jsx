@@ -22,26 +22,19 @@ const SignUp = () => {
         try {
             setSubmitting(true)
 
-            // FIRST WAY
-            // const formData = new FormData()
+            // Create FormData for proper multipart/form-data submission
+            const formData = new FormData()
 
-            // for (const key in data) {
-            //     if (key === "avatar") {
-            //         formData.append(key, data[key][0])
-            //         continue
-            //     }
-            //     formData.append(key, data[key])
-            // }
-
-
-
-            //  SECOND WAY
-            const formattedData = {
-                ...data , 
-                avatar : data.avatar[0]
+            for (const key in data) {
+                if (key === "avatar") {
+                    // File inputs from react-hook-form return FileList, get the first file
+                    formData.append(key, data[key][0])
+                    continue
+                }
+                formData.append(key, data[key])
             }
 
-            const response = await axiosInstance.post("/users/register", formattedData, {
+            const response = await axiosInstance.post("/users/register", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 }

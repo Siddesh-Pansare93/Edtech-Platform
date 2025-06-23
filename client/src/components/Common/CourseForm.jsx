@@ -36,15 +36,20 @@ const CourseForm = () => {
   const onSubmit = async (data) => {
 
     try {
-     
-
-      const formattedData = {
-        ...data , 
-        thumbnail : data.thumbnail[0]
+      // Create FormData for proper multipart/form-data submission
+      const formData = new FormData();
+      
+      for (const key in data) {
+        if (key === "thumbnail") {
+          // File inputs from react-hook-form return FileList, get the first file
+          formData.append(key, data[key][0]);
+          continue;
+        }
+        formData.append(key, data[key]);
       }
 
-      console.log(formattedData)
-      const response = await axiosInstance.post("/course/create", formattedData, {
+      console.log("FormData created for course creation");
+      const response = await axiosInstance.post("/course/create", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

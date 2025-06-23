@@ -13,22 +13,16 @@ const generateAccessAndRefreshToken = async (userId) => {
     const accessToken = await user.generateAccessToken()
     const refreshToken = await user.generateRefreshToken()
 
-
     user.refreshToken = refreshToken
     await user.save()
 
-
-
-
     return { accessToken, refreshToken }
-
-
 }
-
 
 const handleUserRegistration = asyncHandler(async (req, res) => {
     try {
-
+        console.log("request received for registering user")
+        console.log(req.body)
         const { username, email, name, password, role, skillLevel } = req.body
 
         if ([name, username, email, password, role, skillLevel].some(field => (!field || field.trim() === ""))) {
@@ -49,12 +43,9 @@ const handleUserRegistration = asyncHandler(async (req, res) => {
         logger.info(avatarLocalPath)
         let avatarDetails
 
-
-
         if (avatarLocalPath) {
             avatarDetails = await uploadOnCloudinary(avatarLocalPath)
         }
-
 
         const user = await User.create({
             name,
@@ -72,7 +63,6 @@ const handleUserRegistration = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Failed to create User in Database")
         }
 
-
         res
             .status(200)
             .json(
@@ -85,142 +75,155 @@ const handleUserRegistration = asyncHandler(async (req, res) => {
     }
 })
 
-
 const handleUserLogin = asyncHandler(async (req, res) => {
-    const { username, email, password } = req.body
+    try {
+        const { username, email, password } = req.body
 
-    if ([username, email].some(field => (!field || field.trim() === ""))) {
-        throw new ApiError(400, "Please fill all fields")
+        // Check if at least one identifier is provided (username OR email)
+        if ((!username && !email) || !password) {
+            throw new ApiError(400, "Please provide username/email and password")
+        }
+
+        const user = await User.findOne({
+            $or: [{ username }, { email }],
+        })
+
+        if (!user) {
+            throw new ApiError(400, "User Not Found")
+        }
+
+        const isPassWordCorrect = await user.isPassWordCorrect(password)
+
+        if (!isPassWordCorrect) {
+            throw new ApiError(400, "Invalid Password")
+        }
+
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
+
+        if (!accessToken || !refreshToken) {
+            throw new ApiError(400, "Failed to generate Access and Refresh Token")
+        }
+
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+
+        const options = {
+            httpOnly: false,
+            secure: true
+        }
+
+        res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+                new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User Logged In Successfully")
+            )
+    } catch (error) {
+        console.log("Login error:", error.message)
+        res
+            .status(error.statusCode || 400)
+            .json(
+                new ApiResponse(error.statusCode || 400, null, `${error.message}`)
+            )
     }
-
-    const user = await User.findOne({
-        $or: [{ username }, { email }],
-    })
-
-    if (!user) {
-        throw new ApiError(400, "User Not Found")
-    }
-
-    const isPassWordCorrect = await user.isPassWordCorrect(password)
-
-    if (!isPassWordCorrect) {
-        throw new ApiError(400, "Invalid Password")
-    }
-
-
-
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
-
-    if (!accessToken || !refreshToken) {
-        throw new ApiError(400, "Failed to generate Access and Refresh Token")
-    }
-
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
-
-    const options = {
-        httpOnly: false,
-        secure: true
-    }
-
-    res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-            new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User Logged In Successfully")
-        )
-
 })
 
-
 const handleUserLogout = asyncHandler(async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $set: { "refreshToken": "" }
+            },
+            {
+                new: true
+            }
+        )
 
-    await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $set: { "refreshToken": "" }
-        },
-        {
-            new: true
+        const options = {
+            httpOnly: false,
+            secure: true
         }
-    )
 
-    const options = {
-        httpOnly: false,
-        secure: true
+        res
+            .status(200)
+            .clearCookie("accessToken", options)
+            .clearCookie("refreshToken", options)
+            .json(new ApiResponse(200, null, "User Logged Out Successfully"))
+    } catch (error) {
+        res
+            .status(error.statusCode || 500)
+            .json(new ApiResponse(error.statusCode || 500, null, `Error during logout: ${error.message}`))
     }
-
-    res
-        .status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
-        .json(new ApiResponse(200, null, "User Logged Out Successfully"))
 })
 
 const handleUpdateUserProfile = asyncHandler(async (req, res) => {
+    try {
+        const { name, username, email, skillLevel, role } = req.body
 
-    const { name, username, email, skillLevel, role } = req.body
-
-    const updatedUser = User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $set: {
-                name,
-                email,
-                username,
-                skillLevel,
-                role
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $set: {
+                    name,
+                    email,
+                    username,
+                    skillLevel,
+                    role
+                }
+            },
+            {
+                new: true
             }
-        },
-        {
-            new: true
+        ).select("-password -refreshToken")
+
+        if (!updatedUser) {
+            return res
+                .status(404)
+                .json(new ApiResponse(404, null, "User Not Found"))
         }
-    ).select("-password -refreshToken")
 
-    if (!updatedUser) {
-        return res
-            .status(404)
-            .json(new ApiResponse(404, null, "User Not Found"))
+        res
+            .status(200)
+            .json(new ApiResponse(200, updatedUser, "User Updated Successfully"))
+    } catch (error) {
+        res
+            .status(error.statusCode || 500)
+            .json(new ApiResponse(error.statusCode || 500, null, `Error updating profile: ${error.message}`))
     }
-
-    res
-        .status(200)
-        .json(new ApiResponse(200, updatedUser, "User Updated Successfully"))
-
 })
-
 
 const handleChangePassword = asyncHandler(async (req, res) => {
-    const { oldPassword, newPassword } = req.body
+    try {
+        const { oldPassword, newPassword } = req.body
 
-    if (oldPassword === newPassword) {
-        return res
-            .status(400)
-            .json(new ApiResponse(400, null, "Old Password and New Password cannot be the same. Please choose a different password"))
+        if (oldPassword === newPassword) {
+            return res
+                .status(400)
+                .json(new ApiResponse(400, null, "Old Password and New Password cannot be the same. Please choose a different password"))
+        }
+
+        const user = await User.findById(req.user._id)
+        if (!user) {
+            return res
+                .status(404)
+                .json(new ApiResponse(404, null, "User Not Found"))
+        }
+
+        user.password = newPassword
+        await user.save()
+
+        res
+            .status(200)
+            .json(new ApiResponse(200, null, "Password Updated Successfully"))
+    } catch (error) {
+        res
+            .status(error.statusCode || 500)
+            .json(new ApiResponse(error.statusCode || 500, null, `Error changing password: ${error.message}`))
     }
-
-
-
-    const user = await User.findById(req.user._id)
-    if (!user) {
-        return res
-            .status(404)
-            .json(new ApiResponse(404, null, "User Not Found"))
-    }
-
-    user.password = newPassword
-    await user.save()
-
-
-
-    res
-        .status(200)
-        .json(new ApiResponse(200, null, "Password Updated Successfully"))
 })
 
-
 const getEnrolledCourses = asyncHandler(async (req, res) => {
-
     try {
         const enrolledCourses = await Enrollment.find({
             user: req.user._id
@@ -233,7 +236,7 @@ const getEnrolledCourses = asyncHandler(async (req, res) => {
         })
 
         if (!enrolledCourses.length) {
-            new ApiResponse(400,{} , "Not Found any Enrolled Courses")
+            new ApiResponse(400, {}, "Not Found any Enrolled Courses")
         }
         res
             .status(200)
@@ -248,45 +251,25 @@ const getEnrolledCourses = asyncHandler(async (req, res) => {
     }
 })
 
-
 const getYourCreatedCourses = asyncHandler(async (req, res) => {
     try {
-        // const createdCourses = await Course.find({
-        //     instructor: req.user._id
-        // }).populate({
-        //     path: "instructor",
-        //     select: "name"
-        // })
-        // if (!createdCourses.length) {
-        //     throw new ApiError(400, "Created Courses Not Found")
-        // }
-
-        // const enrolledStudents = await Enrollment.find({
-        //     course: createdCourses.map(course => course._id)
-        // })
-
-        // // console.log(enrolledStudents)
-        // const totalEnrolledStudents = enrolledStudents.length
-        // console.log(totalEnrolledStudents)
-
-
         const instructorCourses = await Course.aggregate([
             {
-                $match : {
-                    instructor : req.user._id
+                $match: {
+                    instructor: req.user._id
                 }
             },
             {
-                $lookup : {
-                    from : "enrollments",
-                    localField : "_id",
-                    foreignField : "course",
-                    as : "enrolledStudents",
+                $lookup: {
+                    from: "enrollments",
+                    localField: "_id",
+                    foreignField: "course",
+                    as: "enrolledStudents",
                 }
             },
             {
-                $addFields : {
-                    enrolledStudents : { $size : "$enrolledStudents" }
+                $addFields: {
+                    enrolledStudents: { $size: "$enrolledStudents" }
                 }
             },
         ])
@@ -300,23 +283,13 @@ const getYourCreatedCourses = asyncHandler(async (req, res) => {
         res
             .status(200)
             .json(new ApiResponse(200, courseStatics, "Created Courses Retrieved Successfully"))
-
-
-
-
     } catch (error) {
         console.log(error)
         return res
             .status(400)
             .json(new ApiResponse(400, null, "Error fetching created courses"))
-
     }
 })
-
-
-
-
-
 
 export {
     handleUserRegistration,
@@ -324,6 +297,6 @@ export {
     handleUserLogout,
     handleUpdateUserProfile,
     handleChangePassword,
-    getEnrolledCourses ,
+    getEnrolledCourses,
     getYourCreatedCourses
 }

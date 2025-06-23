@@ -8,8 +8,6 @@ import { login } from '@/store/Features/authSlice'
 import { motion, AnimatePresence } from 'framer-motion'
 import { setCreatedCourses, setEnrolledCourses } from '@/store/Features/courseSlice'
 
-
-
 function Login() {
     const [submitting, setSubmitting] = useState(false)
     const { register, handleSubmit, formState: { errors } } = useForm()
@@ -17,26 +15,43 @@ function Login() {
     const dispatch = useDispatch()
 
     const onSubmit = async (data) => {
-        console.log(data)
-        setSubmitting(true)
-        const response = await axiosInstance.post('/users/login', data)
-        console.log(response)
-        setSubmitting(false)
-        if (response.data.success) {
-            localStorage.setItem('accessToken', response.data.data.accessToken)
-            // localStorage.setItem('user', JSON.stringify(response.data.data))
-            dispatch(login(response.data.data.user))
+        try {
+            console.log("Login data:", data);
+            setSubmitting(true);
+            
+            // Modified to handle either username OR email (not requiring both)
+            const loginData = {
+                username: data.username || "",
+                email: data.email || "",
+                password: data.password
+            };
+            
+            const response = await axiosInstance.post('/users/login', loginData);
+            console.log("Login response:", response.data);
+            
+            if (response.data.success) {
+                localStorage.setItem('accessToken', response.data.data.accessToken);
+                dispatch(login(response.data.data.user));
 
-
-            if (response.data.data.user.role ==="student") {
-                const EnrolledCourseResponse = await axiosInstance.get("/users/enrolled-courses");
-                const courses = EnrolledCourseResponse.data.data;
-                dispatch(setEnrolledCourses(courses));
-            }else if(response.data.data.user.role ==="instructor"){
-                const CreatedCoursesResponse = await axiosInstance.get("/users/your-courses");
-                dispatch(setCreatedCourses(CreatedCoursesResponse.data.data));
+                if (response.data.data.user.role === "student") {
+                    const enrolledCourseResponse = await axiosInstance.get("/users/enrolled-courses");
+                    const courses = enrolledCourseResponse.data.data;
+                    dispatch(setEnrolledCourses(courses));
+                } else if (response.data.data.user.role === "instructor") {
+                    const createdCoursesResponse = await axiosInstance.get("/users/your-courses");
+                    dispatch(setCreatedCourses(createdCoursesResponse.data.data));
+                }
+                navigate("/home");
+            } else {
+                // Handle unsuccessful login with success=false
+                alert(response.data.message || "Login failed");
             }
-            navigate("/home")
+        } catch (error) {
+            // Handle request errors
+            console.error("Login error:", error);
+            alert(error.response?.data?.message || "Login failed. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -61,22 +76,6 @@ function Login() {
                         <h2 className="text-3xl font-bold text-black dark:text-white mb-5">Welcome Back</h2>
 
                         <p className='text-lg'>Build skills for today, tomorrow, and beyond.<span className='text-black dark:text-blue-400 italic font-bold '> Education to future-proof your career. </span></p>
-                        {/* <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="2"
-                                    stroke="currentColor"
-                                    className="w-6 h-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button> */}
                     </div>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 flex flex-col items-center">
                         {/* Email Input */}
