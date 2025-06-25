@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import Input from '../Common/Input'
 import axiosInstance from '@/utils/axiosInstance'
@@ -13,6 +13,14 @@ function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm()
     const navigate = useNavigate()
     const dispatch = useDispatch()
+
+
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            navigate("/");
+        }
+    }, []);
 
     const onSubmit = async (data) => {
         try {
@@ -41,7 +49,7 @@ function Login() {
                     const createdCoursesResponse = await axiosInstance.get("/users/your-courses");
                     dispatch(setCreatedCourses(createdCoursesResponse.data.data));
                 }
-                navigate("/home");
+                navigate("/");
             } else {
                 // Handle unsuccessful login with success=false
                 alert(response.data.message || "Login failed");

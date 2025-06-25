@@ -9,8 +9,10 @@ function Layout() {
 
   return (
     <>
+    <div className='bg-black'>
     <Header/>
     <Outlet/>
+    </div>
     <Footer/>
     </>
   )

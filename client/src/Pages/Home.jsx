@@ -4,18 +4,17 @@ import PopularCourses from '@/components/Common/HomePage/PopularCourses'
 import Testimonials from '@/components/Common/HomePage/Testimonials'
 import HowItWorks from '@/components/Common/HomePage/HowItWorks'
 import CallToAction from '@/components/Common/HomePage/CallToAction'
-import Header from '@/components/Common/Header'
 
 export default function Home() {
   return (
-    <>
+    <div className="min-h-screen bg-black overflow-x-hidden">
       <HeroSection />
       <WhyChooseUs />
       <PopularCourses />
-      <Testimonials />
       <HowItWorks />
+      <Testimonials />
       <CallToAction />
-    </>
+    </div>
   )
 }
 

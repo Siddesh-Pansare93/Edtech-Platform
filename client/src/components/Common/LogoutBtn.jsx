@@ -18,7 +18,7 @@ const LogoutBtn = () => {
         if (response.data.success) {
             localStorage.removeItem('token')
             dispatch(logout())
-            navigate("/home")
+            navigate("/")
 
         }
 

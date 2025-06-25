@@ -13,10 +13,12 @@ function Verify() {
     console.log(courseIds)
 
     const onClick = async () => {
-        const response = axiosInstance.post("/users/verify-payment" , {
+        const response = await axiosInstance.post("/users/verify-payment" , {
             success , 
             courseIds
         })
+
+        console.log(response)
 
         console.log(response.data.data)
 

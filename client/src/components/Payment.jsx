@@ -25,7 +25,7 @@ function Payment() {
       if(data.data === null ){
         navigate(`/course-details/${courses[0]}`)
       }
-      // window.location.replace(data.data)
+      window.location.replace(data.data)
     }else{
       alert(data.message)
     }

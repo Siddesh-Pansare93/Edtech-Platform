@@ -22,31 +22,66 @@ import InstructorDashboard from './Pages/InstructorDashboard';
 import AboutPage from './Pages/About';
 import StudentDashboard from './Pages/StudentDashboard';
 import CourseSettings from './Pages/CourseSettings';
-import { ToastContainer } from 'react-toastify'; // Import ToastContainer for rendering toasts
+import ProfilePage from './Pages/Profile';  
+
+import { ToastContainer } from 'react-toastify'; 
+// Import ToastContainer for rendering toasts
 import 'react-toastify/dist/ReactToastify.css';
+import Authprovider from './utils/Authprovider';
 
 
 
-
+<Authprovider></Authprovider>
 
 const router = createBrowserRouter(
   createRoutesFromElements(
 
     <Route path="/" element={<Layout />}>
-      <Route path="/home" element={<Home />} />
+      <Route path="/" element={<Home />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/courses" element={<AllCoursesPage />} />
-      <Route path="/course-details/:id" element={<CourseDetails />} />
-      <Route path="/payment/:id" element={<Payment />} />
+      
+
+      // add auth provider from here
+      <Route path="/course-details/:id" element={
+        <Authprovider>
+          <CourseDetails />
+        </Authprovider>
+        } />
+      <Route path="/payment/:id" element={
+        <Authprovider>
+          <Payment />
+        </Authprovider>
+        } />
       <Route path="/verify" element={<Verify />} />
-      <Route path="/course-content/:id" element={<CourseContent />} />
-      <Route path='/courseform' element={<CourseForm />} />
-      <Route path='/enrolled-courses' element={<EnrolledCourses />} />
-      <Route path='/instructor/dashboard' element={<InstructorDashboard />} />
+      <Route path="/course-content/:id" element={
+        <Authprovider>
+          <CourseContent />
+        </Authprovider>
+        } />
+      <Route path='/courseform' element={
+        <Authprovider>
+          <CourseForm />
+        </Authprovider>
+        } />
+      <Route path='/enrolled-courses' element={
+        <Authprovider>
+          <EnrolledCourses />
+        </Authprovider>
+        } />
+      <Route path='/instructor/dashboard' element={
+        <Authprovider>
+          <InstructorDashboard />
+        </Authprovider>
+        } />
       <Route path='/instructor/dashboard/course-settings/:courseId' element={<CourseSettings />} />
-      <Route path='/student/dashboard' element={<StudentDashboard />} />
+        <Route path='/student/dashboard' element={
+        <Authprovider>
+          <StudentDashboard />
+        </Authprovider>
+        } />
     </Route>
 
   )

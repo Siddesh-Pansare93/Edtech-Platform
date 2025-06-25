@@ -21,7 +21,7 @@ const AllCoursesPage = () => {
 
     useEffect(() => {
         if (!loggedIn) {
-            navigate("/home");
+            navigate("/login");
             return;
         }
 
