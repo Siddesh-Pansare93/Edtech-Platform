@@ -1,0 +1,1083 @@
+{
+	"info": {
+		"_postman_id": "edtech-platform-api-collection",
+		"name": "EdTech Platform API",
+		"description": "Complete API collection for EdTech Platform with centralized authentication.\n\n## Setup Instructions\n1. Set the `baseUrl` variable to your server URL (default: http://localhost:8000)\n2. First call the Register or Login endpoint\n3. The accessToken will be automatically saved and used for all authenticated requests\n\n## Authentication\nAll protected routes automatically use the `accessToken` variable from collection variables.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "sectionId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lessonId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "reviewId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "User",
+			"description": "User authentication and profile management endpoints",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('User registered successfully:', jsonData.data);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "johndoe123",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "johndoe@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								},
+								{
+									"key": "role",
+									"value": "instructor",
+									"description": "Options: student, instructor, admin",
+									"type": "text"
+								},
+								{
+									"key": "skillLevel",
+									"value": "intermediate",
+									"description": "Options: beginner, intermediate, advanced",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "",
+									"description": "Optional: Profile image file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"register"
+							]
+						},
+						"description": "Register a new user with avatar upload"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+									"    console.log('Login successful. Tokens saved.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"johndoe@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"login"
+							]
+						},
+						"description": "Login with email/username and password. Tokens are automatically saved to collection variables."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"logout"
+							]
+						},
+						"description": "Logout current user and clear tokens"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Updated\",\n    \"username\": \"johnupdated\",\n    \"email\": \"johnupdated@example.com\",\n    \"skillLevel\": \"advanced\",\n    \"role\": \"instructor\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/update-profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"update-profile"
+							]
+						},
+						"description": "Update user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"oldPassword\": \"password123\",\n    \"newPassword\": \"newpassword456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"change-password"
+							]
+						},
+						"description": "Change user password"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Enrolled Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/enrolled-courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"enrolled-courses"
+							]
+						},
+						"description": "Get all courses the current user is enrolled in"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Your Created Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/your-courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"your-courses"
+							]
+						},
+						"description": "Get all courses created by the instructor (requires instructor role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"success\": true,\n    \"courseIds\": [\"{{courseId}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/verify-payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"verify-payment"
+							]
+						},
+						"description": "Verify payment and enroll in courses"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Course",
+			"description": "Course management endpoints",
+			"item": [
+				{
+					"name": "Get All Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course"
+							]
+						},
+						"description": "Get all published courses"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course/details/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course",
+								"details",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get details of a specific course"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Course",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('courseId', jsonData.data._id);",
+									"    console.log('Course created. ID saved:', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Complete Web Development Bootcamp",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Learn web development from scratch with HTML, CSS, JavaScript, React, Node.js, and more. This comprehensive course covers everything you need to become a full-stack developer.",
+									"type": "text"
+								},
+								{
+									"key": "paid",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "1999",
+									"type": "text"
+								},
+								{
+									"key": "validity",
+									"value": "365",
+									"description": "Course validity in days",
+									"type": "text"
+								},
+								{
+									"key": "curriculum[]",
+									"value": "HTML & CSS Basics",
+									"type": "text"
+								},
+								{
+									"key": "curriculum[]",
+									"value": "JavaScript Fundamentals",
+									"type": "text"
+								},
+								{
+									"key": "curriculum[]",
+									"value": "React.js Development",
+									"type": "text"
+								},
+								{
+									"key": "curriculum[]",
+									"value": "Node.js Backend",
+									"type": "text"
+								},
+								{
+									"key": "preRequisites[]",
+									"value": "Basic computer knowledge",
+									"type": "text"
+								},
+								{
+									"key": "preRequisites[]",
+									"value": "Enthusiasm to learn",
+									"type": "text"
+								},
+								{
+									"key": "thumbnail",
+									"type": "file",
+									"src": "",
+									"description": "Course thumbnail image (required)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course",
+								"create"
+							]
+						},
+						"description": "Create a new course (requires instructor or admin role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Complete Web Development Bootcamp 2024\",\n    \"description\": \"Updated course description with the latest content and best practices.\",\n    \"paid\": \"true\",\n    \"price\": \"2499\",\n    \"validity\": \"365\",\n    \"curriculum\": \"HTML & CSS,JavaScript,React,Node.js,MongoDB\",\n    \"preRequisites\": [\"Basic computer knowledge\", \"Internet connection\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course",
+								"{{courseId}}"
+							]
+						},
+						"description": "Update course details (requires instructor who owns the course)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Course",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course",
+								"{{courseId}}"
+							]
+						},
+						"description": "Delete a course (requires instructor who owns the course)"
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Publish Status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course/toggle/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course",
+								"toggle",
+								"{{courseId}}"
+							]
+						},
+						"description": "Toggle course publish status (published/unpublished)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course Content",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/course/content/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"course",
+								"content",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get full course content including sections and lessons (requires enrollment)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Section",
+			"description": "Section management within courses",
+			"item": [
+				{
+					"name": "Create Section",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('sectionId', jsonData.data._id);",
+									"    console.log('Section created. ID saved:', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Introduction to HTML\",\n    \"order\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/section/{{courseId}}/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"section",
+								"{{courseId}}",
+								"create"
+							]
+						},
+						"description": "Create a new section in a course"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Section",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"HTML Fundamentals - Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/section/{{courseId}}/{{sectionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"section",
+								"{{courseId}}",
+								"{{sectionId}}"
+							]
+						},
+						"description": "Update section title"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Section",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/section/{{courseId}}/{{sectionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"section",
+								"{{courseId}}",
+								"{{sectionId}}"
+							]
+						},
+						"description": "Delete a section from a course"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lesson",
+			"description": "Lesson management within course sections",
+			"item": [
+				{
+					"name": "Add Lesson",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('lessonId', jsonData.data._id);",
+									"    console.log('Lesson created. ID saved:', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "What is HTML?",
+									"type": "text"
+								},
+								{
+									"key": "order",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"type": "file",
+									"src": "",
+									"description": "Video file for the lesson"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/lesson/{{courseId}}/{{sectionId}}/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lesson",
+								"{{courseId}}",
+								"{{sectionId}}",
+								"add"
+							]
+						},
+						"description": "Add a new lesson with video content to a section"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Lesson",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Introduction to HTML - Updated",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"type": "file",
+									"src": "",
+									"description": "Optional: New video file to replace existing"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/lesson/{{courseId}}/{{sectionId}}/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lesson",
+								"{{courseId}}",
+								"{{sectionId}}",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Update lesson title and/or video content"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Lesson",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/lesson/{{courseId}}/{{sectionId}}/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lesson",
+								"{{courseId}}",
+								"{{sectionId}}",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Delete a lesson from a section"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Review",
+			"description": "Course review management",
+			"item": [
+				{
+					"name": "Get All Reviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"review",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get all reviews for a course"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('reviewId', jsonData.data._id);",
+									"    console.log('Review created. ID saved:', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rating\": 5,\n    \"review\": \"Excellent course! The instructor explains concepts very clearly and the projects are very helpful for practical learning.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"review",
+								"{{courseId}}"
+							]
+						},
+						"description": "Add a review for a course"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rating\": 4,\n    \"review\": \"Great course with comprehensive content. Would love to see more advanced topics covered.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}/{{reviewId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"review",
+								"{{courseId}}",
+								"{{reviewId}}"
+							]
+						},
+						"description": "Update your own review"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}/{{reviewId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"review",
+								"{{courseId}}",
+								"{{reviewId}}"
+							]
+						},
+						"description": "Delete your own review"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Enrollment",
+			"description": "Course enrollment and purchase",
+			"item": [
+				{
+					"name": "Purchase Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"courses\": [\"{{courseId}}\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/enroll/purchase",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"enroll",
+								"purchase"
+							]
+						},
+						"description": "Purchase one or more courses. Returns Stripe checkout URL for paid courses or enrolls directly for free courses."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Enrollment Status",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/enroll/check-enrollment/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"enroll",
+								"check-enrollment",
+								"{{courseId}}"
+							]
+						},
+						"description": "Check if current user is enrolled in a specific course"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Progress",
+			"description": "Course progress tracking",
+			"item": [
+				{
+					"name": "Update Progress (Mark Lesson Complete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/progress/{{courseId}}/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"progress",
+								"{{courseId}}",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Mark a lesson as completed"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/progress/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"progress",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get progress percentage for a course"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"description": "Server health check",
+			"item": [
+				{
+					"name": "Server Status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Check if the server is running"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
