@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "edtech-platform-api-collection",
 		"name": "EdTech Platform API",
-		"description": "Complete API collection for EdTech Platform with centralized authentication.\n\n## Setup Instructions\n1. Set the `baseUrl` variable to your server URL (default: http://localhost:8000)\n2. First call the Register or Login endpoint\n3. The accessToken will be automatically saved and used for all authenticated requests\n\n## Authentication\nAll protected routes automatically use the `accessToken` variable from collection variables.",
+		"description": "Complete API collection for EdTech Platform with modular architecture.\n\n## Setup Instructions\n1. Set the `baseUrl` variable to your server URL (default: http://localhost:8000)\n2. First call the Register or Login endpoint\n3. The accessToken will be automatically saved and used for all authenticated requests\n\n## Authentication\nAll protected routes automatically use the `accessToken` variable from collection variables.\n\n## Route Changes\n- Auth routes moved to `/api/v1/auth/*`\n- All module routes now use plural form (courses, sections, lessons, reviews)\n- Payment and Enrollment are now separate modules\n- Payment verification moved to `/api/v1/enrollment/verify-payment`",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -54,8 +54,8 @@
 	},
 	"item": [
 		{
-			"name": "User",
-			"description": "User authentication and profile management endpoints",
+			"name": "Auth",
+			"description": "User authentication endpoints",
 			"item": [
 				{
 					"name": "Register User",
@@ -64,9 +64,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"if (pm.response.code === 200) {",
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
-									"    console.log('User registered successfully:', jsonData.data);",
+									"    if (jsonData.data && jsonData.data.accessToken) {",
+									"        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+									"        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+									"        console.log('User registered successfully. Tokens saved.');",
+									"    }",
 									"}"
 								],
 								"type": "text/javascript"
@@ -105,7 +109,7 @@
 								{
 									"key": "role",
 									"value": "instructor",
-									"description": "Options: student, instructor, admin",
+									"description": "Options: student, instructor",
 									"type": "text"
 								},
 								{
@@ -123,14 +127,14 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/users/register",
+							"raw": "{{baseUrl}}/api/v1/auth/register",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"users",
+								"auth",
 								"register"
 							]
 						},
@@ -172,14 +176,14 @@
 							"raw": "{\n    \"email\": \"johndoe@example.com\",\n    \"password\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/users/login",
+							"raw": "{{baseUrl}}/api/v1/auth/login",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"users",
+								"auth",
 								"login"
 							]
 						},
@@ -193,21 +197,27 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/users/logout",
+							"raw": "{{baseUrl}}/api/v1/auth/logout",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"users",
+								"auth",
 								"logout"
 							]
 						},
 						"description": "Logout current user and clear tokens"
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "User",
+			"description": "User profile management endpoints",
+			"item": [
 				{
 					"name": "Update Profile",
 					"request": {
@@ -309,36 +319,6 @@
 						"description": "Get all courses created by the instructor (requires instructor role)"
 					},
 					"response": []
-				},
-				{
-					"name": "Verify Payment",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"success\": true,\n    \"courseIds\": [\"{{courseId}}\"]\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/users/verify-payment",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
-								"verify-payment"
-							]
-						},
-						"description": "Verify payment and enroll in courses"
-					},
-					"response": []
 				}
 			]
 		},
@@ -352,14 +332,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/course",
+							"raw": "{{baseUrl}}/api/v1/courses",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"course"
+								"courses"
 							]
 						},
 						"description": "Get all published courses"
@@ -372,19 +352,41 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/course/details/{{courseId}}",
+							"raw": "{{baseUrl}}/api/v1/courses/details/{{courseId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"course",
+								"courses",
 								"details",
 								"{{courseId}}"
 							]
 						},
 						"description": "Get details of a specific course"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course Content",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses/content/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"content",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get full course content including sections and lessons (requires enrollment)"
 					},
 					"response": []
 				},
@@ -395,7 +397,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"if (pm.response.code === 200) {",
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set('courseId', jsonData.data._id);",
 									"    console.log('Course created. ID saved:', jsonData.data._id);",
@@ -438,33 +440,15 @@
 									"type": "text"
 								},
 								{
-									"key": "curriculum[]",
-									"value": "HTML & CSS Basics",
+									"key": "curriculum",
+									"value": "HTML & CSS Basics,JavaScript Fundamentals,React.js Development,Node.js Backend",
+									"description": "Comma-separated curriculum items",
 									"type": "text"
 								},
 								{
-									"key": "curriculum[]",
-									"value": "JavaScript Fundamentals",
-									"type": "text"
-								},
-								{
-									"key": "curriculum[]",
-									"value": "React.js Development",
-									"type": "text"
-								},
-								{
-									"key": "curriculum[]",
-									"value": "Node.js Backend",
-									"type": "text"
-								},
-								{
-									"key": "preRequisites[]",
-									"value": "Basic computer knowledge",
-									"type": "text"
-								},
-								{
-									"key": "preRequisites[]",
-									"value": "Enthusiasm to learn",
+									"key": "preRequisites",
+									"value": "Basic computer knowledge,Enthusiasm to learn",
+									"description": "Comma-separated prerequisites",
 									"type": "text"
 								},
 								{
@@ -476,14 +460,14 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/course/create",
+							"raw": "{{baseUrl}}/api/v1/courses/create",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"course",
+								"courses",
 								"create"
 							]
 						},
@@ -503,17 +487,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Complete Web Development Bootcamp 2024\",\n    \"description\": \"Updated course description with the latest content and best practices.\",\n    \"paid\": \"true\",\n    \"price\": \"2499\",\n    \"validity\": \"365\",\n    \"curriculum\": \"HTML & CSS,JavaScript,React,Node.js,MongoDB\",\n    \"preRequisites\": [\"Basic computer knowledge\", \"Internet connection\"]\n}"
+							"raw": "{\n    \"title\": \"Complete Web Development Bootcamp 2024\",\n    \"description\": \"Updated course description with the latest content and best practices.\",\n    \"paid\": true,\n    \"price\": 2499,\n    \"validity\": 365,\n    \"curriculum\": [\"HTML & CSS\", \"JavaScript\", \"React\", \"Node.js\", \"MongoDB\"],\n    \"preRequisites\": [\"Basic computer knowledge\", \"Internet connection\"]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/course/{{courseId}}",
+							"raw": "{{baseUrl}}/api/v1/courses/{{courseId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"course",
+								"courses",
 								"{{courseId}}"
 							]
 						},
@@ -527,14 +511,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/course/{{courseId}}",
+							"raw": "{{baseUrl}}/api/v1/courses/{{courseId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"course",
+								"courses",
 								"{{courseId}}"
 							]
 						},
@@ -548,41 +532,19 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/course/toggle/{{courseId}}",
+							"raw": "{{baseUrl}}/api/v1/courses/toggle/{{courseId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"course",
+								"courses",
 								"toggle",
 								"{{courseId}}"
 							]
 						},
 						"description": "Toggle course publish status (published/unpublished)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Course Content",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/course/content/{{courseId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"course",
-								"content",
-								"{{courseId}}"
-							]
-						},
-						"description": "Get full course content including sections and lessons (requires enrollment)"
 					},
 					"response": []
 				}
@@ -599,7 +561,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"if (pm.response.code === 200) {",
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.collectionVariables.set('sectionId', jsonData.data._id);",
 									"    console.log('Section created. ID saved:', jsonData.data._id);",
@@ -622,19 +584,19 @@
 							"raw": "{\n    \"title\": \"Introduction to HTML\",\n    \"order\": 1\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/section/{{courseId}}/create",
+							"raw": "{{baseUrl}}/api/v1/sections/{{courseId}}/create",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"section",
+								"sections",
 								"{{courseId}}",
 								"create"
 							]
 						},
-						"description": "Create a new section in a course"
+						"description": "Create a new section in a course (requires instructor role)"
 					},
 					"response": []
 				},
@@ -653,19 +615,19 @@
 							"raw": "{\n    \"title\": \"HTML Fundamentals - Updated\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/section/{{courseId}}/{{sectionId}}",
+							"raw": "{{baseUrl}}/api/v1/sections/{{courseId}}/{{sectionId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"section",
+								"sections",
 								"{{courseId}}",
 								"{{sectionId}}"
 							]
 						},
-						"description": "Update section title"
+						"description": "Update section title (requires instructor role)"
 					},
 					"response": []
 				},
@@ -675,19 +637,19 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/section/{{courseId}}/{{sectionId}}",
+							"raw": "{{baseUrl}}/api/v1/sections/{{courseId}}/{{sectionId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"section",
+								"sections",
 								"{{courseId}}",
 								"{{sectionId}}"
 							]
 						},
-						"description": "Delete a section from a course"
+						"description": "Delete a section from a course (requires instructor role)"
 					},
 					"response": []
 				}
@@ -739,20 +701,20 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/lesson/{{courseId}}/{{sectionId}}/add",
+							"raw": "{{baseUrl}}/api/v1/lessons/{{courseId}}/{{sectionId}}/add",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"lesson",
+								"lessons",
 								"{{courseId}}",
 								"{{sectionId}}",
 								"add"
 							]
 						},
-						"description": "Add a new lesson with video content to a section"
+						"description": "Add a new lesson with video content to a section (requires instructor role)"
 					},
 					"response": []
 				},
@@ -778,20 +740,20 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/lesson/{{courseId}}/{{sectionId}}/{{lessonId}}",
+							"raw": "{{baseUrl}}/api/v1/lessons/{{courseId}}/{{sectionId}}/{{lessonId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"lesson",
+								"lessons",
 								"{{courseId}}",
 								"{{sectionId}}",
 								"{{lessonId}}"
 							]
 						},
-						"description": "Update lesson title and/or video content"
+						"description": "Update lesson title and/or video content (requires instructor role)"
 					},
 					"response": []
 				},
@@ -801,153 +763,28 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/lesson/{{courseId}}/{{sectionId}}/{{lessonId}}",
+							"raw": "{{baseUrl}}/api/v1/lessons/{{courseId}}/{{sectionId}}/{{lessonId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"lesson",
+								"lessons",
 								"{{courseId}}",
 								"{{sectionId}}",
 								"{{lessonId}}"
 							]
 						},
-						"description": "Delete a lesson from a section"
+						"description": "Delete a lesson from a section (requires instructor role)"
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "Review",
-			"description": "Course review management",
-			"item": [
-				{
-					"name": "Get All Reviews",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"review",
-								"{{courseId}}"
-							]
-						},
-						"description": "Get all reviews for a course"
-					},
-					"response": []
-				},
-				{
-					"name": "Add Review",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    var jsonData = pm.response.json();",
-									"    pm.collectionVariables.set('reviewId', jsonData.data._id);",
-									"    console.log('Review created. ID saved:', jsonData.data._id);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"rating\": 5,\n    \"review\": \"Excellent course! The instructor explains concepts very clearly and the projects are very helpful for practical learning.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"review",
-								"{{courseId}}"
-							]
-						},
-						"description": "Add a review for a course"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Review",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"rating\": 4,\n    \"review\": \"Great course with comprehensive content. Would love to see more advanced topics covered.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}/{{reviewId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"review",
-								"{{courseId}}",
-								"{{reviewId}}"
-							]
-						},
-						"description": "Update your own review"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Review",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/review/{{courseId}}/{{reviewId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"review",
-								"{{courseId}}",
-								"{{reviewId}}"
-							]
-						},
-						"description": "Delete your own review"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Enrollment",
-			"description": "Course enrollment and purchase",
+			"name": "Payment",
+			"description": "Course purchase and payment processing",
 			"item": [
 				{
 					"name": "Purchase Course",
@@ -961,21 +798,57 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"courses\": [\"{{courseId}}\"]\n}"
+							"raw": "{\n    \"courseIds\": [\"{{courseId}}\"]\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/enroll/purchase",
+							"raw": "{{baseUrl}}/api/v1/payment/purchase",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"enroll",
+								"payment",
 								"purchase"
 							]
 						},
 						"description": "Purchase one or more courses. Returns Stripe checkout URL for paid courses or enrolls directly for free courses."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Enrollment",
+			"description": "Course enrollment management",
+			"item": [
+				{
+					"name": "Verify Payment and Enroll",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"success\": true,\n    \"courseIds\": \"{{courseId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/enrollment/verify-payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"enrollment",
+								"verify-payment"
+							]
+						},
+						"description": "Verify payment and enroll in courses after successful Stripe payment"
 					},
 					"response": []
 				},
@@ -985,14 +858,14 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/enroll/check-enrollment/{{courseId}}",
+							"raw": "{{baseUrl}}/api/v1/enrollment/check-enrollment/{{courseId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"enroll",
+								"enrollment",
 								"check-enrollment",
 								"{{courseId}}"
 							]
@@ -1047,6 +920,131 @@
 							]
 						},
 						"description": "Get progress percentage for a course"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Review",
+			"description": "Course review management",
+			"item": [
+				{
+					"name": "Get All Reviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reviews",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get all reviews for a course"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('reviewId', jsonData.data._id);",
+									"    console.log('Review created. ID saved:', jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rating\": 5,\n    \"review\": \"Excellent course! The instructor explains concepts very clearly and the projects are very helpful for practical learning.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reviews",
+								"{{courseId}}"
+							]
+						},
+						"description": "Add a review for a course"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rating\": 4,\n    \"review\": \"Great course with comprehensive content. Would love to see more advanced topics covered.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/{{courseId}}/{{reviewId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reviews",
+								"{{courseId}}",
+								"{{reviewId}}"
+							]
+						},
+						"description": "Update your own review"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reviews/{{courseId}}/{{reviewId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reviews",
+								"{{courseId}}",
+								"{{reviewId}}"
+							]
+						},
+						"description": "Delete your own review"
 					},
 					"response": []
 				}
