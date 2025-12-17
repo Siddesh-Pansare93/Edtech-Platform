@@ -5,7 +5,18 @@ import { Enrollment } from '@/modules/enrollment/enrollment.model';
 import Stripe from 'stripe';
 import { PurchaseDTO, PaymentSession } from './payment.types';
 
-const stripe = new Stripe(process.env.STRIPE_API_KEY!);
+// Lazy initialization of Stripe to ensure env vars are loaded
+let stripeInstance: Stripe | null = null;
+
+const getStripe = (): Stripe => {
+  if (!stripeInstance) {
+    if (!process.env.STRIPE_API_KEY) {
+      throw new ApiError(500, "Stripe API key is not configured");
+    }
+    stripeInstance = new Stripe(process.env.STRIPE_API_KEY);
+  }
+  return stripeInstance;
+};
 
 export const purchaseCourses = async (userId: string, courseIds: string[]): Promise<PaymentSession> => {
   if (!courseIds || courseIds.length === 0) {
@@ -47,6 +58,7 @@ export const purchaseCourses = async (userId: string, courseIds: string[]): Prom
   }
 
   if (line_items.length > 0) {
+    const stripe = getStripe();
     const courseIdsString = enrolledCourseIds.join(",");
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

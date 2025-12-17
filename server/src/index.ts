@@ -8,7 +8,7 @@ import connectToDb from './config/db';
 import { cloudinaryConfig } from './shared/utils/Cloudinary';
 
 cloudinaryConfig();
-console.log(process.env.STRIPE_API_KEY)
+
 
 connectToDb()
   .then(() => {
